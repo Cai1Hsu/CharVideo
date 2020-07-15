@@ -1,0 +1,218 @@
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
+using System.Drawing;
+using System.Text;
+using System.Media;
+
+namespace CharVideo
+{
+    internal class MainClass
+    {
+        public static int width = 156;
+        public static int height = 44;
+        private static void Main(string[] args)
+        {
+            Console.CursorVisible = true;
+
+            int fps = 30;
+            bool withaudio = false;
+            bool framesexist = false;
+
+            //--------------------Arguements processing begin---------------------------
+            if (args.Length < 1 || args[0].ToLower() == "help")
+            {
+                Console.WriteLine(@"
+Usage : CharVideo [videofile](absoluted path) -f [fps] -r [width:hight or width x height] (audio=true) (framesexist)
+example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
+                return;
+            }
+            if (!File.Exists(args[0]))
+            {
+                Console.WriteLine("File doesn't exists.");
+                return;
+            }
+            for (int i = 1; i < args.Length; i++)
+            {
+                switch (args[i].ToLower())
+                {
+                    case "-r":
+                        if (args[++i] == "4:3")
+                        {
+                            width = 117;
+                            height = 44;
+                        }
+                        else
+                        {
+                            string[] size = args[i].Split('x');
+                            width = Convert.ToInt32(size[0]);
+                            height = Convert.ToInt32(size[1]);
+                        }
+                        break;
+                    case "audio=true":
+                        withaudio = true;
+                        break;
+                    case "-f":
+                        try
+                        {
+                            fps = Convert.ToInt32(args[++i]);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                            Console.WriteLine("Fps was set to 30 by default.");
+                        }
+                        break;
+                    case "framesexist":
+                        framesexist = true;
+                        break;
+                }
+            }
+
+            //--------------------Arguements processing end---------------------------
+
+            FileInfo video = new FileInfo(args[0]);
+
+            string path = GetPath(video.FullName);
+            string audiofile = video.FullName.Substring(0, video.FullName.LastIndexOf('.') + 1) + "wav";
+
+            if (!framesexist)
+            {
+                Directory.CreateDirectory(path + "/frames");
+                OutputFrames(video.FullName, fps, path + "frames/");
+            }
+
+            if (withaudio)
+            {
+                OutputAudio(video.FullName, audiofile);
+            }
+
+            int amontOfFrames = Directory.GetFiles(path + "/frames").Length;
+
+            if (amontOfFrames == 0) return;
+
+            string[] frames = new string[amontOfFrames];
+
+            ProcessFrames(path, amontOfFrames, ref frames);
+
+            bool audioexists = File.Exists(audiofile);
+            if (!audioexists)
+            {
+                Console.WriteLine("Audio file does not exists");
+                return;
+            }
+            SoundPlayer sp = null;
+            if (withaudio)
+            {
+                sp = new SoundPlayer(audiofile);
+                sp.Load();
+            }
+
+            Console.Write("\n\aReady,press any key to continue.");
+            Console.ReadKey(true);
+            Console.Clear();
+
+            Console.CursorVisible = false;
+
+            for (int i = 3; i != 0; i--)
+            {
+                Console.SetCursorPosition(0, 0);
+                Console.Write(i);
+                Thread.Sleep(1000);
+            }
+
+            Console.Clear();
+
+            Thread.Sleep(1000);
+            if (sp != null && withaudio)
+            {
+                sp.Play();
+            }
+
+            Play(ref frames, amontOfFrames, fps);
+
+            Console.CursorVisible = true;
+            return;
+        }
+
+        private static void Play(ref string[] frames, int amont, int fps)
+        {
+            long nowframe = 0;
+            long starttime = DateTime.Now.Ticks;
+            while (nowframe < amont)
+            {
+                Console.SetCursorPosition(0, 0);
+                Console.Write(frames[nowframe]);
+                Console.Write("Frame : {0} of {1} fps : {2}", nowframe, amont, fps);
+                nowframe = (DateTime.Now.Ticks - starttime) * fps / 10000000 + 7000;
+            }
+        }
+
+        private static void OutputAudio(string videoFile, string audioFile)
+        {
+            string args = string.Format(" -i \"{0}\" {1}", videoFile, audioFile);
+            ProcessStartInfo p = new ProcessStartInfo("ffmpeg", args);
+            p.CreateNoWindow = true;
+            p.WindowStyle = ProcessWindowStyle.Hidden;
+            Process VideoToFrames = new Process();
+            VideoToFrames.StartInfo = p;
+            VideoToFrames.Start();
+            VideoToFrames.WaitForExit();
+        }
+
+        private static void OutputFrames(string pathandname, int fps, string path)
+        {
+            string args = string.Format(" -i \"{0}\" -r {1} -s {2}x{3} {4}%d.png", pathandname, fps, width, height, path);
+            ProcessStartInfo p = new ProcessStartInfo("ffmpeg", args);
+            p.CreateNoWindow = true;
+            p.WindowStyle = ProcessWindowStyle.Hidden;
+            Process VideoToFrames = new Process();
+            VideoToFrames.StartInfo = p;
+            VideoToFrames.Start();
+            VideoToFrames.WaitForExit();
+        }
+
+        private static string GetPath(string name)
+        {
+            int t = name.LastIndexOf('/') + 1;
+            return name.Substring(0, t);
+        }
+
+        private static void ProcessFrames(string path, int amont, ref string[] frames)
+        {
+            for (int i = 1; i <= amont; i++)
+            {
+                Bitmap bmp = new Bitmap(path + "frames/" + i.ToString() + ".png");
+                frames[i - 1] = FrameToString(bmp);
+            }
+        }
+
+        private static string FrameToString(Bitmap bp)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int w = 0; w < height; w++)
+            {
+                for (int h = 0; h < width; h++)
+                {
+                    Color c = bp.GetPixel(h, w);
+                    sb.Append(PixelToChar(c));
+                }
+                sb.Append('\n');
+            }
+            return sb.ToString();
+        }
+
+        private static char PixelToChar(Color c)
+        {
+            byte g = (byte)((c.R * 306 + c.G * 601 + c.B * 117) >> 10);
+            if (g < 80) return ' ';
+            if (g >= 75 && g < 100) return '-';
+            if (g >= 100 && g < 120) return ':';
+            if (g >= 120 && g < 150) return '+';
+            if (g >= 150 && g < 175) return '=';
+            if (g >= 175 && g < 200) return '*';
+            return '#';
+        }
+    }
+}
