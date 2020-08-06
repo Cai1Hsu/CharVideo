@@ -3,19 +3,23 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Drawing;
+using System.Linq;
 using System.Text;
 using System.Media;
 
 namespace CharVideo
 {
-    internal class MainClass
+    class Program
     {
-        public static int width = 156;
-        public static int height = 44;
+        public static int width = 128;
+        public static int height = 37;
+        public static int begin = 0;
+
         private static void Main(string[] args)
         {
             Console.CursorVisible = true;
 
+            string rate = "16:9";
             int fps = 30;
             bool withaudio = false;
             bool framesexist = false;
@@ -28,20 +32,27 @@ Usage : CharVideo [videofile](absoluted path) -f [fps] -r [width:hight or width 
 example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
                 return;
             }
+
             if (!File.Exists(args[0]))
             {
                 Console.WriteLine("File doesn't exists.");
                 return;
             }
+
             for (int i = 1; i < args.Length; i++)
             {
                 switch (args[i].ToLower())
                 {
                     case "-r":
-                        if (args[++i] == "4:3")
+                        if (args[++i].Contains(":"))
                         {
-                            width = 117;
-                            height = 44;
+                            rate = args[i];
+                            string[] a = args[i].Split(':');
+                            if (args[i] == "4:3")
+                            {
+                                width = 117;
+                                height = 44;
+                            }
                         }
                         else
                         {
@@ -49,6 +60,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
                             width = Convert.ToInt32(size[0]);
                             height = Convert.ToInt32(size[1]);
                         }
+
                         break;
                     case "audio=true":
                         withaudio = true;
@@ -63,9 +75,39 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
                             Console.WriteLine(ex.Message);
                             Console.WriteLine("Fps was set to 30 by default.");
                         }
+
                         break;
                     case "framesexist":
                         framesexist = true;
+                        break;
+                    case "-b":
+                    case "--begin":
+                        try
+                        {
+                            begin = Convert.ToInt32(args[++i]);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            throw;
+                        }
+
+                        break;
+                    case "--maximize":
+                        var x = Convert.ToInt32(rate[0]);
+                        var y = Convert.ToInt32(rate[1]);
+                        var tempwidth = Convert.ToInt32(Math.Floor(Console.WindowHeight * x / y * 1.0f));
+                        var tempheight = Convert.ToInt32(Math.Floor(Console.WindowWidth * y / x * 1.0f));
+                        if (tempwidth > Console.WindowWidth)
+                        {
+                            width = Console.WindowWidth;
+                            height = tempheight;
+                        }
+                        else
+                        {
+                            width = tempwidth;
+                            height = Console.WindowHeight;
+                        }
                         break;
                 }
             }
@@ -97,12 +139,13 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
             ProcessFrames(path, amontOfFrames, ref frames);
 
             bool audioexists = File.Exists(audiofile);
-            if (!audioexists)
+            if (withaudio && !audioexists)
             {
                 Console.WriteLine("Audio file does not exists");
                 return;
             }
-            SoundPlayer sp = null;
+
+            SoundPlayer? sp = null;
             if (withaudio)
             {
                 sp = new SoundPlayer(audiofile);
@@ -145,7 +188,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
                 Console.SetCursorPosition(0, 0);
                 Console.Write(frames[nowframe]);
                 Console.Write("Frame : {0} of {1} fps : {2}", nowframe, amont, fps);
-                nowframe = (DateTime.Now.Ticks - starttime) * fps / 10000000 + 7000;
+                nowframe = (DateTime.Now.Ticks - starttime) * fps / 10000000 + begin;
             }
         }
 
@@ -163,7 +206,8 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
 
         private static void OutputFrames(string pathandname, int fps, string path)
         {
-            string args = string.Format(" -i \"{0}\" -r {1} -s {2}x{3} {4}%d.png", pathandname, fps, width, height, path);
+            string args = string.Format(" -i \"{0}\" -r {1} -s {2}x{3} {4}%d.png", pathandname, fps, width, height,
+                path);
             ProcessStartInfo p = new ProcessStartInfo("ffmpeg", args);
             p.CreateNoWindow = true;
             p.WindowStyle = ProcessWindowStyle.Hidden;
@@ -198,14 +242,16 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
                     Color c = bp.GetPixel(h, w);
                     sb.Append(PixelToChar(c));
                 }
+
                 sb.Append('\n');
             }
+
             return sb.ToString();
         }
 
         private static char PixelToChar(Color c)
         {
-            byte g = (byte)((c.R * 306 + c.G * 601 + c.B * 117) >> 10);
+            byte g = (byte) ((c.R * 306 + c.G * 601 + c.B * 117) >> 10);
             if (g < 80) return ' ';
             if (g >= 75 && g < 100) return '-';
             if (g >= 100 && g < 120) return ':';
