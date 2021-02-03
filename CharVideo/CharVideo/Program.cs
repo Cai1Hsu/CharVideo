@@ -14,6 +14,7 @@ namespace CharVideo
         public static int width = 128;
         public static int height = 37;
         public static int begin = 0;
+        public static string audiofile;
 
         private static void Main(string[] args)
         {
@@ -48,10 +49,10 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
                         {
                             rate = args[i];
                             string[] a = args[i].Split(':');
-                            if (args[i] == "4:3")
+                            if (args[i] == "16:9")
                             {
                                 width = 117;
-                                height = 44;
+                                height = 33;
                             }
                         }
                         else
@@ -117,40 +118,31 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
             FileInfo video = new FileInfo(args[0]);
 
             string path = GetPath(video.FullName);
-            string audiofile = video.FullName.Substring(0, video.FullName.LastIndexOf('.') + 1) + "wav";
+            audiofile = video.FullName;
 
             if (!framesexist)
             {
                 Directory.CreateDirectory(path + "/frames");
                 OutputFrames(video.FullName, fps, path + "frames/");
             }
-
-            if (withaudio)
-            {
-                OutputAudio(video.FullName, audiofile);
-            }
-
+            
             int amontOfFrames = Directory.GetFiles(path + "/frames").Length;
 
             if (amontOfFrames == 0) return;
 
             string[] frames = new string[amontOfFrames];
 
+            Console.WriteLine("I`m here 0 ");
             ProcessFrames(path, amontOfFrames, ref frames);
 
-            bool audioexists = File.Exists(audiofile);
-            if (withaudio && !audioexists)
-            {
-                Console.WriteLine("Audio file does not exists");
-                return;
-            }
-
-            SoundPlayer? sp = null;
+            Console.WriteLine("I`m here");
+            Thread audioplayer = null;
             if (withaudio)
             {
-                sp = new SoundPlayer(audiofile);
-                sp.Load();
+                audioplayer = new Thread(() => {PlayAudio(video.FullName);});
             }
+
+            Console.WriteLine("I`m here2");
 
             Console.Write("\n\aReady,press any key to continue.");
             Console.ReadKey(true);
@@ -168,9 +160,10 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
             Console.Clear();
 
             Thread.Sleep(1000);
-            if (sp != null && withaudio)
+            Console.Clear();
+            if (withaudio)
             {
-                sp.Play();
+                audioplayer.Start();
             }
 
             Play(ref frames, amontOfFrames, fps);
@@ -192,12 +185,16 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
             }
         }
 
-        private static void OutputAudio(string videoFile, string audioFile)
+        private static void PlayAudio(string videoFile)
         {
-            string args = string.Format(" -i \"{0}\" {1}", videoFile, audioFile);
-            ProcessStartInfo p = new ProcessStartInfo("ffmpeg", args);
+            string args = string.Format("{0} -nodisp -autoexit -loglevel quiet", audiofile);
+            ProcessStartInfo p = new ProcessStartInfo("ffplay", args);
             p.CreateNoWindow = true;
             p.WindowStyle = ProcessWindowStyle.Hidden;
+            p.RedirectStandardInput = false;
+            p.RedirectStandardOutput = false;
+            p.RedirectStandardError = false;
+            p.UseShellExecute = false;
             Process VideoToFrames = new Process();
             VideoToFrames.StartInfo = p;
             VideoToFrames.Start();
@@ -225,10 +222,12 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 audio=true framesexist");
 
         private static void ProcessFrames(string path, int amont, ref string[] frames)
         {
-            for (int i = 1; i <= amont; i++)
+            Console.WriteLine("amont = {0}",amont);
+            for (int i = 1; i < amont; i++)
             {
                 Bitmap bmp = new Bitmap(path + "frames/" + i.ToString() + ".png");
                 frames[i - 1] = FrameToString(bmp);
+                // Console.WriteLine(i);
             }
         }
 
