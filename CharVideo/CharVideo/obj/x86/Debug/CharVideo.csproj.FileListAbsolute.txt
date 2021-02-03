@@ -1,6 +1,0 @@
-/home/cai1hsu/CharVideo/CharVideo/CharVideo/bin/Debug/CharVideo.exe
-/home/cai1hsu/CharVideo/CharVideo/CharVideo/bin/Debug/CharVideo.pdb
-/home/cai1hsu/CharVideo/CharVideo/CharVideo/obj/x86/Debug/CharVideo.csprojAssemblyReference.cache
-/home/cai1hsu/CharVideo/CharVideo/CharVideo/obj/x86/Debug/CharVideo.csproj.CoreCompileInputs.cache
-/home/cai1hsu/CharVideo/CharVideo/CharVideo/obj/x86/Debug/CharVideo.exe
-/home/cai1hsu/CharVideo/CharVideo/CharVideo/obj/x86/Debug/CharVideo.pdb
