@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "kBz3CwMWRa1Ebox00qP4M6cAqyiN9ivuqDmZy5V2C0UK42NmegyBFJYVg8v6gs+3EXwRLJntxHSf+ZFeCmzoYQ==",
+  "success": true,
+  "projectFilePath": "/home/cai1hsu/charvideo/charvideo.csproj",
+  "expectedPackageFiles": [
+    "/home/cai1hsu/.nuget/packages/microsoft.netcore.platforms/5.0.0/microsoft.netcore.platforms.5.0.0.nupkg.sha512",
+    "/home/cai1hsu/.nuget/packages/microsoft.win32.systemevents/5.0.0/microsoft.win32.systemevents.5.0.0.nupkg.sha512",
+    "/home/cai1hsu/.nuget/packages/system.drawing.common/5.0.0/system.drawing.common.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
