@@ -12,7 +12,6 @@ namespace CharVideo
         public static int width = 128;
         public static int height = 37;
         public static int begin = 0;
-        public static string audiofile;
 
         private static void Main(string[] args)
         {
@@ -46,10 +45,14 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                         if (args[++i].Contains(":"))
                         {
                             rate = args[i];
-                            string[] a = args[i].Split(':');
+                            //string[] a = args[i].Split(':');
                             if (args[i] == "16:9")
                             {
                                 width = 117;
+                                height = 33;
+                            }
+                            if(args[i] == "4:3"){
+                                width = 88;
                                 height = 33;
                             }
                         }
@@ -79,35 +82,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                     case "-e":
                         framesexist = true;
                         break;
-                    case "-b":
-                    case "--begin":
-                        try
-                        {
-                            begin = Convert.ToInt32(args[++i]);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                            throw;
-                        }
-
-                        break;
-                    case "--maximize":
-                        var x = Convert.ToInt32(rate[0]);
-                        var y = Convert.ToInt32(rate[1]);
-                        var tempwidth = Convert.ToInt32(Math.Floor(Console.WindowHeight * x / y * 1.0f));
-                        var tempheight = Convert.ToInt32(Math.Floor(Console.WindowWidth * y / x * 1.0f));
-                        if (tempwidth > Console.WindowWidth)
-                        {
-                            width = Console.WindowWidth;
-                            height = tempheight;
-                        }
-                        else
-                        {
-                            width = tempwidth;
-                            height = Console.WindowHeight;
-                        }
-                        break;
                     case "-s":
                         withsource = true;
                         break;
@@ -119,7 +93,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             FileInfo video = new FileInfo(args[0]);
             
             string path = GetPath(video.FullName);
-            audiofile = video.FullName;
 
             if (!framesexist)
             {
@@ -183,7 +156,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
         }
 
         private static void PlaySource(string videoFile){
-            string args = string.Format("{0} -an -autoexit -loglevel quiet", audiofile);
+            string args = string.Format("{0} -an -autoexit -loglevel quiet", videoFile);
             ProcessStartInfo p = new ProcessStartInfo("ffplay", args);
             p.CreateNoWindow = true;
             p.WindowStyle = ProcessWindowStyle.Hidden;
@@ -198,7 +171,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
         }
         private static void PlayAudio(string videoFile)
         {
-            string args = string.Format("{0} -nodisp -autoexit -loglevel quiet", audiofile);
+            string args = string.Format("{0} -nodisp -autoexit -loglevel quiet", videoFile);
             ProcessStartInfo p = new ProcessStartInfo("ffplay", args);
             p.CreateNoWindow = true;
             p.WindowStyle = ProcessWindowStyle.Hidden;
