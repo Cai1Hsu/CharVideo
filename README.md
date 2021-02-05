@@ -39,6 +39,8 @@ This program allows you to play a video in chars.
 
 ### 4. Enjoy
 
+RECOMMEND : You should really try this super awesome terminal emulator [Alacritty](https://github.com/alacritty/alacritty).
+
 ```bash
    $ charplayer [videofile] -f [fps] -r [resolution] -a -e
 ```
