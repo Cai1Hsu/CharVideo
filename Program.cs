@@ -123,7 +123,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             Console.ReadKey(true);
             Console.Clear();
 
-            //Console.CursorVisible = false;
+            Console.CursorVisible = false;
 
             if (withaudio)
             {
@@ -135,7 +135,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
 
             Play(ref frames, amontOfFrames, fps);
 
-            //Console.CursorVisible = true;
+            Console.CursorVisible = true;
         }
 
         private static void Play(ref string[] frames, int amont, int fps)
@@ -145,9 +145,9 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             long lastsecond = starttime / 10000000;
             int countFrames = 0;
             int showfps = fps;
+            long lastframe = 0;
             while (nowframe < amont)
             {
-                //Console.SetCursorPosition(0, 0);
                 Console.Write(frames[nowframe]);
                 Console.Write(" {0}/{1} Rendering fps : {2} (Visible fps depends on the terminal emulator) ", nowframe, amont, showfps);
                 long thisTick = DateTime.Now.Ticks;
@@ -156,7 +156,10 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                     countFrames = 0;
                     lastsecond = thisTick/ 10000000;
                 }else countFrames++;
-                nowframe = (DateTime.Now.Ticks - starttime) * fps / 10000000;
+                do
+                    nowframe = (DateTime.Now.Ticks - starttime) * fps / 10000000;
+                while(nowframe == lastframe);
+                lastframe = nowframe;
                 Console.SetCursorPosition(0,0);
             }
         }
