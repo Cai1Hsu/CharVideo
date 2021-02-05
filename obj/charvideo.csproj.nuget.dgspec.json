@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/cai1hsu/charvideo/charvideo.csproj": {}
+    "/home/cai1hsu/CharVideo/charvideo.csproj": {}
   },
   "projects": {
-    "/home/cai1hsu/charvideo/charvideo.csproj": {
+    "/home/cai1hsu/CharVideo/charvideo.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/cai1hsu/charvideo/charvideo.csproj",
+        "projectUniqueName": "/home/cai1hsu/CharVideo/charvideo.csproj",
         "projectName": "charvideo",
-        "projectPath": "/home/cai1hsu/charvideo/charvideo.csproj",
+        "projectPath": "/home/cai1hsu/CharVideo/charvideo.csproj",
         "packagesPath": "/home/cai1hsu/.nuget/packages/",
-        "outputPath": "/home/cai1hsu/charvideo/obj/",
+        "outputPath": "/home/cai1hsu/CharVideo/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/cai1hsu/.nuget/NuGet/NuGet.Config"

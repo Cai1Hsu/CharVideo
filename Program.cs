@@ -11,7 +11,6 @@ namespace CharVideo
     {
         public static int width = 128;
         public static int height = 37;
-        public static int begin = 0;
 
         private static void Main(string[] args)
         {
@@ -34,6 +33,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             if (!File.Exists(args[0]))
             {
                 Console.WriteLine("File doesn't exists.");
+                Console.WriteLine($"Inputed arg[0] : {args[0]}");
                 return;
             }
 
@@ -75,7 +75,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message);
-                            Console.WriteLine("Fps was set to 30 by default.");
+                            Console.WriteLine("Inviled input, fps was set to 30 by default.");
                         }
 
                         break;
@@ -106,10 +106,8 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
 
             string[] frames = new string[amontOfFrames];
 
-            //Console.WriteLine("I`m here 0 ");
             ProcessFrames(path, amontOfFrames, ref frames);
 
-            //Console.WriteLine("I`m here");
             Thread audioplayer = null;
             if (withaudio)
             {
@@ -119,8 +117,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             if(withsource){
                 sourceplayer = new Thread(() =>{PlaySource(video.FullName);});
             }
-
-            //Console.WriteLine("I`m here2");
 
             Console.Write("\n\aReady,press any key to continue.");
             Console.ReadKey(true);
@@ -139,7 +135,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             Play(ref frames, amontOfFrames, fps);
 
             Console.CursorVisible = true;
-            //return;
         }
 
         private static void Play(ref string[] frames, int amont, int fps)
@@ -151,7 +146,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                 Console.SetCursorPosition(0, 0);
                 Console.Write(frames[nowframe]);
                 Console.Write("Frame : {0} of {1} fps : {2}", nowframe, amont, fps);
-                nowframe = (DateTime.Now.Ticks - starttime) * fps / 10000000 + begin;
+                nowframe = (DateTime.Now.Ticks - starttime) * fps / 10000000;
             }
         }
 
@@ -200,8 +195,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
 
         private static string GetPath(string name)
         {
-            int t = name.LastIndexOf('/') + 1;
-            return name.Substring(0, t);
+            return name.Substring(0, name.LastIndexOf('/')+1);
         }
 
         private static void ProcessFrames(string path, int amont, ref string[] frames)
@@ -225,7 +219,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                     Color c = bp.GetPixel(h, w);
                     sb.Append(PixelToChar(c));
                 }
-
                 sb.Append('\n');
             }
 

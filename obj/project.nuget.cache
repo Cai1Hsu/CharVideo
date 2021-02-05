@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "kBz3CwMWRa1Ebox00qP4M6cAqyiN9ivuqDmZy5V2C0UK42NmegyBFJYVg8v6gs+3EXwRLJntxHSf+ZFeCmzoYQ==",
+  "dgSpecHash": "onygCAWMI6XqwsJppauqXUzVwKoCowVgEONN4X9Tz918l+33mHWtNwcvbB5iGLRnr4Tg9VtyXSZO9TJ4xuaY/Q==",
   "success": true,
-  "projectFilePath": "/home/cai1hsu/charvideo/charvideo.csproj",
+  "projectFilePath": "/home/cai1hsu/CharVideo/charvideo.csproj",
   "expectedPackageFiles": [
     "/home/cai1hsu/.nuget/packages/microsoft.netcore.platforms/5.0.0/microsoft.netcore.platforms.5.0.0.nupkg.sha512",
     "/home/cai1hsu/.nuget/packages/microsoft.win32.systemevents/5.0.0/microsoft.win32.systemevents.5.0.0.nupkg.sha512",
