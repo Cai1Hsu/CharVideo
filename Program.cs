@@ -143,7 +143,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             long nowframe = 0;
             long starttime = DateTime.Now.Ticks;
             long lastsecond = starttime / 10000000;
-            int countFrames = 0;
+            int countFrames = 1;
             int showfps = fps;
             long lastframe = 0;
             while (nowframe < amont)
@@ -153,7 +153,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                 long thisTick = DateTime.Now.Ticks;
                 if (thisTick / 10000000 != lastsecond){
                     showfps = countFrames;
-                    countFrames = 0;
+                    countFrames = 1;
                     lastsecond = thisTick/ 10000000;
                 }else countFrames++;
                 do
