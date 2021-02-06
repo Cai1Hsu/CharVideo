@@ -1,5 +1,8 @@
 This program allows you to play a video in chars.
-
+## Features
+   - High-performance   You can play videos at 60 fps in your terminal emulator.
+   - Eazy to use        Follow the commands below and you can enjoy it easily.
+ 
 ## Get started
 
 ### 1. Make sure you have installed all the dependencies .
