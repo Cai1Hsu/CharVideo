@@ -14,14 +14,12 @@ namespace CharVideo
 
         private static void Main(string[] args)
         {
-            Console.CursorVisible = true;
-
             string rate = "16:9";
             int fps = 30;
             bool withaudio = false;
             bool framesexist = false;
             bool withsource = false;
-            //--------------------Arguements processing begin---------------------------
+            
             if (args.Length < 1 || args[0].ToLower() == "help" || args[0].ToLower() == "-h")
             {
                 Console.WriteLine(@"
@@ -45,7 +43,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                         if (args[++i].Contains(":"))
                         {
                             rate = args[i];
-                            //string[] a = args[i].Split(':');
                             if (args[i] == "16:9")
                             {
                                 width = 117;
@@ -53,7 +50,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                             }
                             if(args[i] == "4:3"){
                                 width = 88;
-            //Console.WriteLine("I`m here");
                                 height = 33;
                             }
                         }
@@ -88,8 +84,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                         break;
                 }
             }
-
-            //--------------------Arguements processing end---------------------------
 
             FileInfo video = new FileInfo(args[0]);
             
@@ -127,6 +121,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             Console.Clear();
 
             Console.CursorVisible = false;
+            Console.CancelKeyPress += new ConsoleCancelEventHandler(Cancled);
 
             if (withaudio)
             {
@@ -217,12 +212,10 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
 
         private static void ProcessFrames(string path, int amont, ref string[] frames)
         {
-            //Console.WriteLine("amont = {0}",amont);
             for (int i = 1; i <= amont; i++)
             {
                 Bitmap bmp = new Bitmap($"{path}{i}.png");
                 frames[i - 1] = FrameToString(bmp);
-                // Console.WriteLine(i);
             }
         }
 
@@ -253,5 +246,10 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             if (g >= 175 && g < 200) return '*';
             return '#';
         }
+
+        protected static void Cancled(object sender, ConsoleCancelEventArgs args){
+            Console.CursorVisible = true;
+        }
     }
 }
+
