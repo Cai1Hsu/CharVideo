@@ -19,7 +19,9 @@ namespace CharVideo
             bool withaudio = false;
             bool framesexist = false;
             bool withsource = false;
-            
+            bool isRealtime = false;
+            bool output_only =false;
+
             if (args.Length < 1 || args[0].ToLower() == "help" || args[0].ToLower() == "-h")
             {
                 Console.WriteLine(@"
@@ -82,6 +84,13 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                     case "-s":
                         withsource = true;
                         break;
+                    case "--realtime":
+                        framesexist = true;
+                        isRealtime = true;
+                        break;
+                    case "--output_only":
+
+                        return;
                 }
             }
 
@@ -97,14 +106,14 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                 OutputFrames(video.FullName, fps, framesDir);
             }
             
+            if(output_only) return;
+
             int amontOfFrames = Directory.GetFiles(framesDir).Length;
 
             if (amontOfFrames == 0) return;
 
             string[] frames = new string[amontOfFrames];
-
-            ProcessFrames(framesDir, amontOfFrames, ref frames);
-
+            
             Thread audioplayer = null;
             if (withaudio)
             {
@@ -115,9 +124,14 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                 sourceplayer = new Thread(() =>{PlaySource(video.FullName);});
             }
 
-            Console.WriteLine("Please pesize your terminal emulator to {0}x{1}",width,height+1);
-            Console.Write("\n\aReady,press any key to continue.");
-            Console.ReadKey(true);
+            if(!isRealtime) {
+
+                ProcessFrames(framesDir, amontOfFrames, ref frames);
+
+                Console.WriteLine("Please pesize your terminal emulator to {0}x{1}",width,height+1);
+                Console.Write("\n\aReady,press any key to continue.");
+                Console.ReadKey(true);
+            }
             Console.Clear();
 
             Console.CursorVisible = false;
@@ -131,8 +145,8 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                 sourceplayer.Start();
             }
 
-            Play(ref frames, amontOfFrames, fps);
-
+            if(!isRealtime) Play(ref frames, amontOfFrames, fps);
+            else PlayRealtime($"{path}{name}_{fps}/", amontOfFrames, fps);
             Console.CursorVisible = true;
         }
 
@@ -162,6 +176,31 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             }
         }
 
+        private static void PlayRealtime(string path,int amont,int fps){
+            long nowframe = 0;
+            long starttime = DateTime.Now.Ticks;
+            long lastsecond = starttime / 10000000;
+            int countFrames = 1;
+            int showfps = fps;
+            long lastframe = 0;
+            while (nowframe < amont)
+            {
+                Console.Write(GetFrame(nowframe,path));
+                Console.Write(" {0}/{1} Rendering fps[Realtime]: {2} (Visible fps depends on the terminal emulator) ", nowframe, amont, showfps);
+                long thisTick = DateTime.Now.Ticks;
+                if (thisTick / 10000000 != lastsecond){
+                    showfps = countFrames;
+                    countFrames = 1;
+                    lastsecond = thisTick/ 10000000;
+                }else countFrames++;
+                do
+                    nowframe = (DateTime.Now.Ticks - starttime) * fps / 10000000;
+                while(nowframe == lastframe);
+                lastframe = nowframe;
+                Console.SetCursorPosition(0,0);
+            }
+        }
+        
         private static void PlaySource(string videoFile){
             string args = string.Format("{0} -an -autoexit -loglevel quiet", videoFile);
             ProcessStartInfo p = new ProcessStartInfo("ffplay", args);
@@ -217,6 +256,10 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                 Bitmap bmp = new Bitmap($"{path}{i}.png");
                 frames[i - 1] = FrameToString(bmp);
             }
+        }
+        
+        private static string GetFrame(long i,string path){
+            return FrameToString(new Bitmap($"{path}{i+1}.png"));
         }
 
         private static string FrameToString(Bitmap bp)
