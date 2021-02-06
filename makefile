@@ -1,8 +1,8 @@
 all:
-	dotnet build|lolcat
+	dotnet build
 restore:
-	dotnet restore|lolcat
+	dotnet restore
 clean:
-	dotnet clean|lolcat
+	dotnet clean
 run:
 	dotnet run

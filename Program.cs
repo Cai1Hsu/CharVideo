@@ -93,21 +93,23 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
 
             FileInfo video = new FileInfo(args[0]);
             
+            string name = video.Name.Substring(0,video.Name.LastIndexOf('.'));
             string path = GetPath(video.FullName);
+            string framesDir = $"{path}{name}_{fps}/";
 
-            if (!framesexist)
+            if (!framesexist || !Directory.Exists(framesDir))
             {
-                Directory.CreateDirectory(path + "/frames");
-                OutputFrames(video.FullName, fps, path + "frames/");
+                Directory.CreateDirectory(framesDir);
+                OutputFrames(video.FullName, fps, framesDir);
             }
             
-            int amontOfFrames = Directory.GetFiles(path + "/frames").Length;
+            int amontOfFrames = Directory.GetFiles(framesDir).Length;
 
             if (amontOfFrames == 0) return;
 
             string[] frames = new string[amontOfFrames];
 
-            ProcessFrames(path, amontOfFrames, ref frames);
+            ProcessFrames(framesDir, amontOfFrames, ref frames);
 
             Thread audioplayer = null;
             if (withaudio)
@@ -216,9 +218,9 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
         private static void ProcessFrames(string path, int amont, ref string[] frames)
         {
             //Console.WriteLine("amont = {0}",amont);
-            for (int i = 1; i < amont; i++)
+            for (int i = 1; i <= amont; i++)
             {
-                Bitmap bmp = new Bitmap(path + "frames/" + i.ToString() + ".png");
+                Bitmap bmp = new Bitmap($"{path}{i}.png");
                 frames[i - 1] = FrameToString(bmp);
                 // Console.WriteLine(i);
             }
