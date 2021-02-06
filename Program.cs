@@ -119,6 +119,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                 sourceplayer = new Thread(() =>{PlaySource(video.FullName);});
             }
 
+            Console.WriteLine("Please pesize your terminal emulator to {0}x{1}",width,height+1);
             Console.Write("\n\aReady,press any key to continue.");
             Console.ReadKey(true);
             Console.Clear();
