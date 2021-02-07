@@ -11,9 +11,10 @@ namespace CharVideo
     {
         public static int width = 128;
         public static int height = 37;
-
+        public static bool withcolor = false;
         private static void Main(string[] args)
         {
+            Console.CursorVisible = true;
             string rate = "16:9";
             int fps = 30;
             bool withaudio = false;
@@ -61,7 +62,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                             width = Convert.ToInt32(size[0]);
                             height = Convert.ToInt32(size[1]);
                         }
-
                         break;
                     case "-a":
                         withaudio = true;
@@ -85,12 +85,16 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                         withsource = true;
                         break;
                     case "--realtime":
-                        framesexist = true;
                         isRealtime = true;
                         break;
+                    case "-o":
                     case "--output_only":
-
-                        return;
+                        output_only = true;
+                        break;
+                    case "-c":
+                        withcolor = true;
+                        //ColorMap = new Color[]{Color.Black,Color.DarkBlue,Color.DarkGreen,Color.DarkCyan,Color.DarkRed,Color.DarkMagenta,Color.Olive,Color.Gray,Color.DarkGray,Color.Blue,Color.Green,Color.Cyan,Color.Red,Color.Magenta,Color.Yellow,Color.White};
+                        break;
                 }
             }
 
@@ -106,14 +110,17 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                 OutputFrames(video.FullName, fps, framesDir);
             }
             
-            if(output_only) return;
+            if(output_only){
+                Console.WriteLine("Done");
+                return;
+            }
 
             int amontOfFrames = Directory.GetFiles(framesDir).Length;
 
             if (amontOfFrames == 0) return;
 
             string[] frames = new string[amontOfFrames];
-            
+
             Thread audioplayer = null;
             if (withaudio)
             {
@@ -127,7 +134,8 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             if(!isRealtime) {
 
                 ProcessFrames(framesDir, amontOfFrames, ref frames);
-
+               //ProcessColors(amontOfFrames,ref colors);
+                
                 Console.WriteLine("Please pesize your terminal emulator to {0}x{1}",width,height+1);
                 Console.Write("\n\aReady,press any key to continue.");
                 Console.ReadKey(true);
@@ -144,7 +152,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             if(withsource){
                 sourceplayer.Start();
             }
-
             if(!isRealtime) Play(ref frames, amontOfFrames, fps);
             else PlayRealtime($"{path}{name}_{fps}/", amontOfFrames, fps);
             Console.CursorVisible = true;
@@ -161,7 +168,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             while (nowframe < amont)
             {
                 Console.Write(frames[nowframe]);
-                Console.Write(" {0}/{1} Rendering fps : {2} (Visible fps depends on the terminal emulator) ", nowframe, amont, showfps);
+                Console.Write("{3}[m {0}/{1} Rendering fps : {2} (Visible fps depends on the terminal emulator) ", nowframe, amont, showfps, (char)27);
                 long thisTick = DateTime.Now.Ticks;
                 if (thisTick / 10000000 != lastsecond){
                     showfps = countFrames;
@@ -186,7 +193,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             while (nowframe < amont)
             {
                 Console.Write(GetFrame(nowframe,path));
-                Console.Write(" {0}/{1} Rendering fps[Realtime]: {2} (Visible fps depends on the terminal emulator) ", nowframe, amont, showfps);
+                Console.Write("{3}[m {0}/{1} Rendering fps[Realtime]: {2} (Visible fps depends on the terminal emulator) ", nowframe, amont, showfps, (char)27);
                 long thisTick = DateTime.Now.Ticks;
                 if (thisTick / 10000000 != lastsecond){
                     showfps = countFrames;
@@ -270,6 +277,9 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                 for (int h = 0; h < width; h++)
                 {
                     Color c = bp.GetPixel(h, w);
+                    if(withcolor){
+                        sb.Append($"{(char)27}[0;38;5;{pixelToInt(bp.GetPixel(h,w))}m");
+                    }
                     sb.Append(PixelToChar(c));
                 }
                 sb.Append('\n');
@@ -288,6 +298,11 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             if (g >= 150 && g < 175) return '=';
             if (g >= 175 && g < 200) return '*';
             return '#';
+        }
+
+        private static int pixelToInt(Color c) {
+            if (c.R == c.G && c.G == c.B) return 232 + (c.R * 23)/255;
+             else return (16 + ((c.R*5)/255)*36+ ((c.G*5)/255)*6 + (c.B*5)/255);
         }
 
         protected static void Cancled(object sender, ConsoleCancelEventArgs args){
