@@ -269,6 +269,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             return FrameToString(new Bitmap($"{path}{i+1}.png"));
         }
 
+        public const char slashe = (char)27;
         private static string FrameToString(Bitmap bp)
         {
             StringBuilder sb = new StringBuilder();
@@ -278,7 +279,11 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                 {
                     Color c = bp.GetPixel(h, w);
                     if(withcolor){
-                        sb.Append($"{(char)27}[0;38;5;{pixelToInt(bp.GetPixel(h,w))}m");
+                        //sb.Append($"{(char)27}[0;38;5;{pixelToInt(bp.GetPixel(h,w))}m");
+                        sb.Append(slashe);
+                        sb.Append("[0;38;5;");
+                        sb.Append(pixelToInt(bp.GetPixel(h,w)));
+                        sb.Append('m');
                     }
                     sb.Append(PixelToChar(c));
                 }
