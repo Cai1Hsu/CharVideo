@@ -9,9 +9,10 @@ namespace CharVideo
 {
     class Program
     {
-        public static int width = 128;
-        public static int height = 37;
+        public static int width = 117;
+        public static int height = 33;
         public static bool withcolor = false;
+        
         private static void Main(string[] args)
         {
             Console.CursorVisible = true;
@@ -103,7 +104,7 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             string name = video.Name.Substring(0,video.Name.LastIndexOf('.'));
             string path = GetPath(video.FullName);
             string framesDir = $"{path}{name}_{fps}/";
-
+                
             if (!framesexist || !Directory.Exists(framesDir))
             {
                 Directory.CreateDirectory(framesDir);
@@ -279,7 +280,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                 {
                     Color c = bp.GetPixel(h, w);
                     if(withcolor){
-                        //sb.Append($"{(char)27}[0;38;5;{pixelToInt(bp.GetPixel(h,w))}m");
                         sb.Append(slashe);
                         sb.Append("[0;38;5;");
                         sb.Append(pixelToInt(bp.GetPixel(h,w)));
