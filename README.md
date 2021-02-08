@@ -89,10 +89,12 @@ sudo ln -s $(pwd)/bin/Debug/net5.0/charvideo /usr/bin/charplayer
 
 ## Usage
 
-​	-f						Specify the value of the fps
+        -f						Specify the value of the fps
 
-​	-r						Specify the value of the resolution/ratio
+        -r						Specify the value of the resolution/ratio
 
-​	-a						Enable audio player
+        -a						Enable audio player
 
-​	--realtime		  Render frames while playing
+        -realtime		        Render frames while playing
+        
+        -c                      Play the video with colors
