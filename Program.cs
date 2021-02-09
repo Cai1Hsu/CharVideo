@@ -94,7 +94,23 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                         break;
                     case "-c":
                         withcolor = true;
-                        //ColorMap = new Color[]{Color.Black,Color.DarkBlue,Color.DarkGreen,Color.DarkCyan,Color.DarkRed,Color.DarkMagenta,Color.Olive,Color.Gray,Color.DarkGray,Color.Blue,Color.Green,Color.Cyan,Color.Red,Color.Magenta,Color.Yellow,Color.White};
+                        break;
+                    case "-m":
+                    case "--maximize":
+                        int x = Convert.ToInt32(rate.Split(':')[0]);
+                        int y = Convert.ToInt32(rate.Split(':')[1]);
+                        int w1 = Console.WindowWidth;
+                        int h1 = (w1 * y / x) >> 1;
+                        int h2 = Console.WindowHeight;
+                        int w2 = h2 * 2 * x  / y;
+                        if (h1 > Console.WindowHeight){
+                            height = h2;
+                            width = w2;
+                        }else{
+                            height = h1;
+                            width = w1;
+                        }
+                        Console.ReadKey(true);
                         break;
                 }
             }
