@@ -98,3 +98,5 @@ sudo ln -s $(pwd)/bin/Debug/net5.0/charvideo /usr/bin/charplayer
         -realtime		        Render frames while playing
         
         -c                      Play the video with colors
+        
+        -m                      Play the video as big as your terminal can
