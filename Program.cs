@@ -79,7 +79,6 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                             Console.WriteLine(ex.Message);
                             Console.WriteLine("invalid input, fps was set to 30 by default.");
                         }
-
                         break;
                     case "-e":
                         isFramesExist = true;
