@@ -9,12 +9,12 @@ int fps = 30;
 int videoWidth = 117;
 int videoHeight = 33;      // Since a char includes 2 pixels, height should be the half of the source.
 string ratio = "16:9";
-bool isRealtime = false;
-bool isWithColor = false;
-bool isPlayAudio = false;
-bool isOutputOnly = false;
-bool isFramesExist = false;
-bool isPlaySourceVideo = false;
+bool isRealtime         = false;
+bool isWithColor        = false;
+bool isPlayAudio        = false;
+bool isOutputOnly       = false;
+bool isFramesExist      = false;
+bool isPlaySourceVideo  = false;
 
 void Main(string[] args)
 {
@@ -294,7 +294,6 @@ string FrameToString(Bitmap bp)
 
 char PixelToChar(Color c)
 {
-    //byte g = (byte)((c.R * 306 + c.G * 601 + c.B * 117) >> 10);
     int g = ((c.R << 1) + (c.G * 5) + c.B) >> 3;
     if (g < 80) return ' ';
     if (g >= 75 && g < 100) return '-';
