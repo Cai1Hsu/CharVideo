@@ -1,23 +1,24 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using System.Threading;
-using System.Drawing;
 using System.Text;
+using System.Drawing;
+using System.Threading;
+using System.Diagnostics;
 
+int fps = 30;
 int videoWidth = 117;
 int videoHeight = 33;      // Since a char includes 2 pixels, height should be the half of the source.
+string ratio = "16:9";
+bool isRealtime = false;
 bool isWithColor = false;
+bool isPlayAudio = false;
+bool isOutputOnly = false;
+bool isFramesExist = false;
+bool isPlaySourceVideo = false;
 
-void Main(string[] args){
+void Main(string[] args)
+{
     Console.CursorVisible = true;
-    string rate = "16:9";
-    int fps = 30;
-    bool isPlayAudio = false;
-    bool isFramesExist = false;
-    bool isPlaySourceVideo = false;
-    bool isRealtime = false;
-    bool isOutputOnly = false;
 
     if (args.Length < 1 || args[0].ToLower() == "help" || args[0].ToLower() == "-h")
     {
@@ -41,7 +42,7 @@ void Main(string[] args){
             case "-r":
                 if (args[++i].Contains(":"))
                 {
-                    rate = args[i];
+                    ratio = args[i];
                     if (args[i] == "16:9")
                     {
                         videoWidth = 117;
@@ -92,8 +93,8 @@ void Main(string[] args){
                 break;
             case "-m":
             case "--maximize":
-                int x = Convert.ToInt32(rate.Split(':')[0]);
-                int y = Convert.ToInt32(rate.Split(':')[1]);
+                int x = Convert.ToInt32(ratio.Split(':')[0]);
+                int y = Convert.ToInt32(ratio.Split(':')[1]);
                 int w1 = Console.WindowWidth;
                 int h1 = (w1 * y / x) >> 1;
                 int h2 = Console.WindowHeight;
@@ -108,7 +109,6 @@ void Main(string[] args){
                     videoHeight = h1;
                     videoWidth = w1;
                 }
-                //Console.ReadKey(true);
                 break;
         }
     }
@@ -120,7 +120,7 @@ void Main(string[] args){
     string framesDir = $"{path}{name}_{fps}/";
 
     if (!isFramesExist || !Directory.Exists(framesDir))
-    { 
+    {
         Directory.CreateDirectory(framesDir);
         OutputFrames(video.FullName, fps, framesDir);
     }
@@ -169,8 +169,8 @@ void Main(string[] args){
     {
         sourcePlayer.Start();
     }
-    if (!isRealtime) Play(ref frames, amont, fps);
-    else PlayRealtime($"{path}{name}_{fps}/", (long)amont, fps);
+    if (isRealtime) PlayRealtime($"{path}{name}_{fps}/", (long)amont, fps);
+    else Play(ref frames, amont, fps);
 
     Console.CursorVisible = true;
 }
@@ -245,7 +245,7 @@ void PlayAudio(string videoFile)
 
 void OutputFrames(string pathandname, int fps, string path)
 {
-    string arg = string.Format(" -i \"{0}\" -r {1} -s {2}x{3} {4}%d.png",
+    string arg = string.Format(" -i \"{0}\" -r {1} -s {2}x{3} {4}%d.png -loglevel quiet",
         pathandname, fps, videoWidth, videoHeight, path);
     Process.Start("ffmpeg", arg);
 }
@@ -278,7 +278,7 @@ string FrameToString(Bitmap bp)
         {
             Color c = bp.GetPixel(x, y);
             if (isWithColor)
-            {
+            {                
                 //sb.Append($"{(char)27}[0;38;5;{PixelToChar(bp.GetPixel(h,w))}m");
                 sb.Append(slashE);
                 sb.Append("[0;38;5;");
@@ -311,9 +311,6 @@ int pixelToInt(Color c)
     else return (16 + ((c.R * 5) / 255) * 36 + ((c.G * 5) / 255) * 6 + (c.B * 5) / 255);
 }
 
-void Cancled(object sender, ConsoleCancelEventArgs args)
-{
-    Console.CursorVisible = true;
-}
+void Cancled(object sender, ConsoleCancelEventArgs args) => Console.CursorVisible = true;
 
 Main(args);
