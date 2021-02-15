@@ -5,7 +5,7 @@ using System.Threading;
 using System.Drawing;
 using System.Text;
 
-namespace CharVideo
+namespace charvideo
 {
     class Program
     {
