@@ -9,20 +9,21 @@ namespace CharVideo
 {
     class Program
     {
-        public static int width = 117;
-        public static int height = 33;
-        public static bool withcolor = false;
-        
+        public static int videoWidth = 117;
+        // Since a char includes 2 pixels, height should be the half of the source.
+        public static int videoHeight = 33;
+        public static bool isWithColor = false;
+
         private static void Main(string[] args)
         {
             Console.CursorVisible = true;
             string rate = "16:9";
             int fps = 30;
-            bool withaudio = false;
-            bool framesexist = false;
-            bool withsource = false;
+            bool isPlayAudio = false;
+            bool isFramesExist = false;
+            bool isPlaySourceVideo = false;
             bool isRealtime = false;
-            bool output_only =false;
+            bool isOutputOnly = false;
 
             if (args.Length < 1 || args[0].ToLower() == "help" || args[0].ToLower() == "-h")
             {
@@ -49,23 +50,24 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                             rate = args[i];
                             if (args[i] == "16:9")
                             {
-                                width = 117;
-                                height = 33;
+                                videoWidth = 117;
+                                videoHeight = 33;
                             }
-                            if(args[i] == "4:3"){
-                                width = 88;
-                                height = 33;
+                            if (args[i] == "4:3")
+                            {
+                                videoWidth = 88;
+                                videoHeight = 33;
                             }
                         }
                         else
                         {
                             string[] size = args[i].Split('x');
-                            width = Convert.ToInt32(size[0]);
-                            height = Convert.ToInt32(size[1]);
+                            videoWidth = Convert.ToInt32(size[0]);
+                            videoHeight = Convert.ToInt32(size[1]);
                         }
                         break;
                     case "-a":
-                        withaudio = true;
+                        isPlayAudio = true;
                         break;
                     case "-f":
                         try
@@ -75,25 +77,25 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message);
-                            Console.WriteLine("Inviled input, fps was set to 30 by default.");
+                            Console.WriteLine("invalid input, fps was set to 30 by default.");
                         }
 
                         break;
                     case "-e":
-                        framesexist = true;
+                        isFramesExist = true;
                         break;
                     case "-s":
-                        withsource = true;
+                        isPlaySourceVideo = true;
                         break;
                     case "--realtime":
                         isRealtime = true;
                         break;
                     case "-o":
                     case "--output_only":
-                        output_only = true;
+                        isOutputOnly = true;
                         break;
                     case "-c":
-                        withcolor = true;
+                        isWithColor = true;
                         break;
                     case "-m":
                     case "--maximize":
@@ -102,58 +104,62 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
                         int w1 = Console.WindowWidth;
                         int h1 = (w1 * y / x) >> 1;
                         int h2 = Console.WindowHeight;
-                        int w2 = h2 * 2 * x  / y;
-                        if (h1 > Console.WindowHeight){
-                            height = h2;
-                            width = w2;
-                        }else{
-                            height = h1;
-                            width = w1;
+                        int w2 = h2 * 2 * x / y;
+                        if (h1 > Console.WindowHeight)
+                        {
+                            videoHeight = h2;
+                            videoWidth = w2;
                         }
-                        Console.ReadKey(true);
+                        else
+                        {
+                            videoHeight = h1;
+                            videoWidth = w1;
+                        }
+                        //Console.ReadKey(true);
                         break;
                 }
             }
 
             FileInfo video = new FileInfo(args[0]);
-            
-            string name = video.Name.Substring(0,video.Name.LastIndexOf('.'));
+
+            string name = video.Name.Substring(0, video.Name.LastIndexOf('.'));
             string path = GetPath(video.FullName);
             string framesDir = $"{path}{name}_{fps}/";
-                
-            if (!framesexist || !Directory.Exists(framesDir))
+
+            if (!isFramesExist || !Directory.Exists(framesDir))
             {
                 Directory.CreateDirectory(framesDir);
                 OutputFrames(video.FullName, fps, framesDir);
             }
-            
-            if(output_only){
+
+            if (isOutputOnly)
+            {
                 Console.WriteLine("Done");
                 return;
             }
 
-            int amontOfFrames = Directory.GetFiles(framesDir).Length;
+            int amont = Directory.GetFiles(framesDir).Length;
 
-            if (amontOfFrames == 0) return;
+            if (amont == 0) return;
 
-            string[] frames = new string[amontOfFrames];
+            string[] frames = new string[amont];
 
-            Thread audioplayer = null;
-            if (withaudio)
+            Thread audioPlayer = null;
+            if (isPlayAudio)
             {
-                audioplayer = new Thread(() => {PlayAudio(video.FullName);});
+                audioPlayer = new Thread(() => { PlayAudio(video.FullName); });
             }
-            Thread sourceplayer = null;
-            if(withsource){
-                sourceplayer = new Thread(() =>{PlaySource(video.FullName);});
+            Thread sourcePlayer = null;
+            if (isPlaySourceVideo)
+            {
+                sourcePlayer = new Thread(() => { PlaySource(video.FullName); });
             }
 
-            if(!isRealtime) {
+            if (!isRealtime)
+            {
+                ProcessFrames(framesDir, amont, ref frames);
 
-                ProcessFrames(framesDir, amontOfFrames, ref frames);
-               //ProcessColors(amontOfFrames,ref colors);
-                
-                Console.WriteLine("Please pesize your terminal emulator to {0}x{1}",width,height+1);
+                Console.WriteLine("Please pesize your terminal emulator to {0}x{1}", videoWidth, videoHeight + 1);
                 Console.Write("\n\aReady,press any key to continue.");
                 Console.ReadKey(true);
             }
@@ -162,156 +168,139 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             Console.CursorVisible = false;
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Cancled);
 
-            if (withaudio)
+            if (isPlayAudio)
             {
-                audioplayer.Start();
+                audioPlayer.Start();
             }
-            if(withsource){
-                sourceplayer.Start();
+            if (isPlaySourceVideo)
+            {
+                sourcePlayer.Start();
             }
-            if(!isRealtime) Play(ref frames, amontOfFrames, fps);
-            else PlayRealtime($"{path}{name}_{fps}/", amontOfFrames, fps);
+            if (!isRealtime) Play(ref frames, amont, fps);
+            else PlayRealtime($"{path}{name}_{fps}/", (long)amont, fps);
             Console.CursorVisible = true;
         }
 
         private static void Play(ref string[] frames, int amont, int fps)
         {
-            long nowframe = 0;
-            long starttime = DateTime.Now.Ticks;
-            long lastsecond = starttime / 10000000;
+            long playingFrame = 0;
+            long startTime = DateTime.Now.Ticks;
+            long lastSecond = startTime / 10000000;
             int countFrames = 1;
-            int showfps = fps;
-            long lastframe = 0;
-            while (nowframe < amont)
+            int showingFps = fps;
+            long lastFrame = 0;
+            while (playingFrame < amont)
             {
-                Console.Write(frames[nowframe]);
-                Console.Write("{3}[m {0}/{1} Rendering fps : {2} (Visible fps depends on the terminal emulator) ", nowframe, amont, showfps, (char)27);
+                Console.Write(frames[playingFrame]);
+                Console.Write("{3}[m {0}/{1} Rendering fps : {2} ", playingFrame, amont, showingFps, (char)27);
                 long thisTick = DateTime.Now.Ticks;
-                if (thisTick / 10000000 != lastsecond){
-                    showfps = countFrames;
+                if (thisTick / 10000000 != lastSecond)
+                {
+                    showingFps = countFrames;
                     countFrames = 1;
-                    lastsecond = thisTick/ 10000000;
-                }else countFrames++;
+                    lastSecond = thisTick / 10000000;
+                }
+                else countFrames++;
                 do
-                    nowframe = (DateTime.Now.Ticks - starttime) * fps / 10000000;
-                while(nowframe == lastframe);
-                lastframe = nowframe;
-                Console.SetCursorPosition(0,0);
+                    playingFrame = (DateTime.Now.Ticks - startTime) * fps / 10000000;
+                while (playingFrame == lastFrame);
+                lastFrame = playingFrame;
+                Console.SetCursorPosition(0, 0);
             }
         }
 
-        private static void PlayRealtime(string path,int amont,int fps){
-            long nowframe = 0;
-            long starttime = DateTime.Now.Ticks;
-            long lastsecond = starttime / 10000000;
+        private static void PlayRealtime(string path, long amont, int fps)
+        {
+            long playingFrame = 0;
+            long startTime = DateTime.Now.Ticks;
+            long lastSecond = startTime / 10000000;
             int countFrames = 1;
-            int showfps = fps;
-            long lastframe = 0;
-            while (nowframe < amont)
+            int showingFps = fps;
+            long lastFrame = 0;
+            while (playingFrame < amont)
             {
-                Console.Write(GetFrame(nowframe,path));
-                Console.Write("{3}[m {0}/{1} Rendering fps[Realtime]: {2} (Visible fps depends on the terminal emulator) ", nowframe, amont, showfps, (char)27);
+                Console.Write(GetFrame(playingFrame, path));
+                Console.Write("{3}[m {0}/{1} Rendering fps[Realtime]: {2} ", playingFrame, amont, showingFps, (char)27);
                 long thisTick = DateTime.Now.Ticks;
-                if (thisTick / 10000000 != lastsecond){
-                    showfps = countFrames;
+                if (thisTick / 10000000 != lastSecond)
+                {
+                    showingFps = countFrames;
                     countFrames = 1;
-                    lastsecond = thisTick/ 10000000;
-                }else countFrames++;
+                    lastSecond = thisTick / 10000000;
+                }
+                else countFrames++;
                 do
-                    nowframe = (DateTime.Now.Ticks - starttime) * fps / 10000000;
-                while(nowframe == lastframe);
-                lastframe = nowframe;
-                Console.SetCursorPosition(0,0);
+                    playingFrame = (DateTime.Now.Ticks - startTime) * fps / 10000000;
+                while (playingFrame == lastFrame);
+                lastFrame = playingFrame;
+                Console.SetCursorPosition(0, 0);
             }
         }
-        
-        private static void PlaySource(string videoFile){
-            string args = string.Format("{0} -an -autoexit -loglevel quiet", videoFile);
-            ProcessStartInfo p = new ProcessStartInfo("ffplay", args);
-            p.CreateNoWindow = true;
-            p.WindowStyle = ProcessWindowStyle.Hidden;
-            p.RedirectStandardInput = false;
-            p.RedirectStandardOutput = false;
-            p.RedirectStandardError = false;
-            p.UseShellExecute = false;
-            Process VideoToFrames = new Process();
-            VideoToFrames.StartInfo = p;
-            VideoToFrames.Start();
-            VideoToFrames.WaitForExit();
+
+        private static void PlaySource(string videoFile)
+        {
+            string arg = string.Format("{0} -an -autoexit -loglevel quiet", videoFile);
+            Process.Start("ffplay", arg);
         }
         private static void PlayAudio(string videoFile)
         {
-            string args = string.Format("{0} -nodisp -autoexit -loglevel quiet", videoFile);
-            ProcessStartInfo p = new ProcessStartInfo("ffplay", args);
-            p.CreateNoWindow = true;
-            p.WindowStyle = ProcessWindowStyle.Hidden;
-            p.RedirectStandardInput = false;
-            p.RedirectStandardOutput = false;
-            p.RedirectStandardError = false;
-            p.UseShellExecute = false;
-            Process VideoToFrames = new Process();
-            VideoToFrames.StartInfo = p;
-            VideoToFrames.Start();
-            VideoToFrames.WaitForExit();
+            string arg = string.Format("{0} -nodisp -autoexit -loglevel quiet", videoFile);
+            Process.Start("ffplay", arg).WaitForExit();
         }
 
         private static void OutputFrames(string pathandname, int fps, string path)
         {
-            string args = string.Format(" -i \"{0}\" -r {1} -s {2}x{3} {4}%d.png", pathandname, fps, width, height,
-                path);
-            ProcessStartInfo p = new ProcessStartInfo("ffmpeg", args);
-            p.CreateNoWindow = true;
-            p.WindowStyle = ProcessWindowStyle.Hidden;
-            Process VideoToFrames = new Process();
-            VideoToFrames.StartInfo = p;
-            VideoToFrames.Start();
-            VideoToFrames.WaitForExit();
+            string arg = string.Format(" -i \"{0}\" -r {1} -s {2}x{3} {4}%d.png",
+                pathandname, fps, videoWidth, videoHeight, path);
+            Process.Start("ffmpeg", arg);
         }
 
         private static string GetPath(string name)
         {
-            return name.Substring(0, name.LastIndexOf('/')+1);
+            return name.Substring(0, name.LastIndexOf('/') + 1);
         }
 
         private static void ProcessFrames(string path, int amont, ref string[] frames)
         {
-            for (int i = 1; i <= amont; i++)
+            for (int i = 0; i < amont;)
             {
-                Bitmap bmp = new Bitmap($"{path}{i}.png");
-                frames[i - 1] = FrameToString(bmp);
+                frames[i - 1] = FrameToString(new Bitmap($"{path}{++i}.png"));
             }
         }
-        
-        private static string GetFrame(long i,string path){
-            return FrameToString(new Bitmap($"{path}{i+1}.png"));
+
+        private static string GetFrame(long i, string path)
+        {
+            return FrameToString(new Bitmap($"{path}{i + 1}.png"));
         }
 
-        public const char slashe = (char)27;
+        public const char slashE = (char)27;
         private static string FrameToString(Bitmap bp)
         {
             StringBuilder sb = new StringBuilder();
-            for (int w = 0; w < height; w++)
+            for (int y = 0; y < videoHeight; y++)
             {
-                for (int h = 0; h < width; h++)
+                for (int x = 0; x < videoWidth; x++)
                 {
-                    Color c = bp.GetPixel(h, w);
-                    if(withcolor){
-                        sb.Append(slashe);
+                    Color c = bp.GetPixel(x, y);
+                    if (isWithColor)
+                    {
+                        //sb.Append($"{(char)27}[0;38;5;{PixelToChar(bp.GetPixel(h,w))}m");
+                        sb.Append(slashE);
                         sb.Append("[0;38;5;");
-                        sb.Append(pixelToInt(bp.GetPixel(h,w)));
+                        sb.Append(pixelToInt(bp.GetPixel(x, y)));
                         sb.Append('m');
                     }
                     sb.Append(PixelToChar(c));
                 }
                 sb.Append('\n');
             }
-
             return sb.ToString();
         }
 
         private static char PixelToChar(Color c)
         {
-            byte g = (byte) ((c.R * 306 + c.G * 601 + c.B * 117) >> 10);
+            //byte g = (byte)((c.R * 306 + c.G * 601 + c.B * 117) >> 10);
+            int g = ((c.R << 1) + (c.G * 5) + c.B) >> 3;
             if (g < 80) return ' ';
             if (g >= 75 && g < 100) return '-';
             if (g >= 100 && g < 120) return ':';
@@ -320,15 +309,15 @@ example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
             if (g >= 175 && g < 200) return '*';
             return '#';
         }
-
-        private static int pixelToInt(Color c) {
-            if (c.R == c.G && c.G == c.B) return 232 + (c.R * 23)/255;
-             else return (16 + ((c.R*5)/255)*36+ ((c.G*5)/255)*6 + (c.B*5)/255);
+        private static int pixelToInt(Color c)
+        {
+            if (c.R == c.G && c.G == c.B) return 232 + (c.R * 23) / 255;
+            else return (16 + ((c.R * 5) / 255) * 36 + ((c.G * 5) / 255) * 6 + (c.B * 5) / 255);
         }
 
-        protected static void Cancled(object sender, ConsoleCancelEventArgs args){
+        protected static void Cancled(object sender, ConsoleCancelEventArgs args)
+        {
             Console.CursorVisible = true;
         }
     }
 }
-
