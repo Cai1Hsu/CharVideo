@@ -97,7 +97,7 @@ sudo ln -s $(pwd)/bin/Debug/net5.0/charvideo /usr/bin/charplayer
 
         -a						Enable audio player
 
-        -realtime		        Render frames while playing
+        --realtime		        Render frames while playing
         
         -c                      Play the video with colors
         
