@@ -135,7 +135,7 @@ void Main(string[] args)
 
     if (amont == 0) return;
 
-    string[] frames = new string[amont];
+    char[][] frames = new char[amont][];
 
     Thread audioPlayer = null;
     if (isPlayAudio)
@@ -175,7 +175,7 @@ void Main(string[] args)
     Console.CursorVisible = true;
 }
 
-void Play(ref string[] frames, int amont, int fps)
+void Play(ref char[][] frames, int amont, int fps)
 {
     long playingFrame = 0;
     long startTime = DateTime.Now.Ticks;
@@ -255,7 +255,7 @@ string GetPath(string name)
     return name.Substring(0, name.LastIndexOf('/') + 1);
 }
 
-void ProcessFrames(string path, int amont, ref string[] frames)
+void ProcessFrames(string path, int amont, ref char[][] frames)
 {
     for (int i = 0; i < amont;)
     {
@@ -263,34 +263,43 @@ void ProcessFrames(string path, int amont, ref string[] frames)
     }
 }
 
-string GetFrame(long i, string path)
+char[] GetFrame(long i, string path)
 {
     return FrameToString(new Bitmap($"{path}{i + 1}.png"));
 }
 
 const char slashE = (char)27;
-string FrameToString(Bitmap bp)
+const char end = (char)0;
+
+char[] FrameToString(Bitmap bp)
 {
-    StringBuilder sb = new StringBuilder();
+    char[] s = new char[isWithColor ? (videoWidth + 1) * videoHeight * 14 + 1: (videoWidth + 1) * videoHeight + 1]; 
+    int i = 0;
     for (int y = 0; y < videoHeight; y++)
     {
         for (int x = 0; x < videoWidth; x++)
         {
             Color c = bp.GetPixel(x, y);
             if (isWithColor)
-            {                
-                //sb.Append($"{(char)27}[0;38;5;{PixelToChar(bp.GetPixel(h,w))}m");
-                sb.Append(slashE);
-                sb.Append("[0;38;5;");
-                sb.Append(pixelToInt(bp.GetPixel(x, y)));
-                sb.Append('m');
+            {
+                AppendChar(ref s, ref i, slashE);
+                AppendString(ref s, ref i, "[0;38;5;");
+                AppendString(ref s, ref i, pixelToInt(bp.GetPixel(x, y)).ToString());
+                AppendChar(ref s, ref i, 'm');
             }
-            sb.Append(PixelToChar(c));
+            AppendChar(ref s, ref i, PixelToChar(c));
         }
-        sb.Append('\n');
+        AppendChar(ref s, ref i, '\n');
     }
-    return sb.ToString();
+    AppendChar(ref s, ref i, end);
+    return s;
 }
+
+void AppendString(ref char[] str, ref int i,string s){
+    for(int l = 0;l < s.Length;l++) str[i++] = s[l];
+}
+
+void AppendChar(ref char[] str, ref int i, char c) => str[i++] = c;
 
 char PixelToChar(Color c)
 {
