@@ -245,7 +245,7 @@ char[] FrameToString(Bitmap bp)
                 AppendString(ref s, ref i, pixelToInt(bp.GetPixel(x, y)).ToString());
                 AppendChar(ref s, ref i, 'm');
             }
-            AppendChar(ref s, ref i, PixelToChar(((c.R << 1) + (c.G * 5) + c.B) >> 3));
+            AppendChar(ref s, ref i, PixelToChar((c.R * 306 + c.G * 601 + c.B * 117) >> 10));
         }
         AppendChar(ref s, ref i, '\n');
     }
@@ -259,16 +259,7 @@ void AppendString(ref char[] str, ref int i,string s){
 
 void AppendChar(ref char[] str, ref int i, char c) => str[i++] = c;
 
-char PixelToChar(int g) => g switch
-{
-    < 80 => ' ',
-    < 100 => '-',
-    < 120 => ':',
-    < 150 => '+',
-    < 175 => '=',
-    < 200 => '*',
-    _ => '#'
-};
+char PixelToChar(int g) => "        --::+++++===***######"[g * 29 / 256];
 
 int pixelToInt(Color c) => (c.R == c.G && c.G == c.B) ? 232 + (c.R * 23) / 255 : (16 + ((c.R * 5) / 255) * 36 + ((c.G * 5) / 255) * 6 + (c.B * 5) / 255);
 
