@@ -116,7 +116,7 @@ void Main(string[] args)
 
     string name = video.Name.Substring(0, video.Name.LastIndexOf('.'));
     string path = GetPath(video.FullName);
-    string framesDir = $"{path}{name}_{fps}/";
+    string framesDir = $"{path}{name}_{fps}{Path.DirectorySeparatorChar}";
 
     if (!isFramesExist || !Directory.Exists(framesDir))
     {
@@ -185,7 +185,7 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
     while (playingFrame < amont)
     {
         Console.Write(isRealtime? GetFrame(playingFrame, path) : frames[playingFrame]);
-        Console.Write("{3}[m {0}/{1} Rendering fps : {2} ", playingFrame, amont, showingFps, (char)27);
+        Console.Write(" {0} / {1} Rendering fps : {2} ", playingFrame, amont, showingFps);
         long thisTick = DateTime.Now.Ticks;
         if (thisTick / 10000000 != lastSecond)
         {
@@ -223,7 +223,7 @@ void OutputFrames(string pathandname, int fps, string path)
 
 string GetPath(string name)
 {
-    return name.Substring(0, name.LastIndexOf('/') + 1);
+    return name.Substring(0, name.LastIndexOf(Path.DirectorySeparatorChar) + 1);
 }
 
 void ProcessFrames(string path, int amont, ref char[][] frames)
