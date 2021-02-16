@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Threading;
 using System.Diagnostics;
 
-int fps = 30;
+int fps = 30;   // for speed control
 int videoWidth = 117;
 int videoHeight = 33;      // Since a char includes 2 pixels, height should be the half of the source.
 string ratio = "16:9";
@@ -152,10 +152,6 @@ void Main(string[] args)
         ProcessFrames(framesDir, amont, ref frames);
     }
 
-//  Console.WriteLine("Please pesize your terminal emulator to {0}x{1}", videoWidth, videoHeight + 1);
-//  Console.Write("\n\aReady,press any key to continue.");
-//  Console.ReadKey(true);
-
     Console.Clear();
 
     Console.CursorVisible = false;
@@ -177,8 +173,8 @@ void Main(string[] args)
 void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
 {
     long playingFrame = 0;
-    long startTime = DateTime.Now.Ticks;
-    long lastSecond = startTime / 10000000;
+    long startTick = DateTime.Now.Ticks;
+    long lastSecond = startTick / 10000000;
     int countFrames = 1;
     int showingFps = fps;
     long lastFrame = 0;
@@ -195,7 +191,7 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
         }
         else countFrames++;
         do
-            playingFrame = (DateTime.Now.Ticks - startTime) * fps / 10000000;
+            playingFrame = (DateTime.Now.Ticks - startTick) * fps / 10000000;
         while (playingFrame == lastFrame);
         lastFrame = playingFrame;
         Console.SetCursorPosition(0, 0);
@@ -221,20 +217,14 @@ void OutputFrames(string pathandname, int fps, string path)
     Process.Start("ffmpeg", arg);
 }
 
-string GetPath(string name)
-{
-    return name.Substring(0, name.LastIndexOf(Path.DirectorySeparatorChar) + 1);
-}
+string GetPath(string name) => name.Substring(0, name.LastIndexOf(Path.DirectorySeparatorChar) + 1);
 
 void ProcessFrames(string path, int amont, ref char[][] frames)
 {
     for (int i = 0; i < amont; frames[i] = FrameToString(new Bitmap($"{path}{++i}.png"))) ;
 }
 
-char[] GetFrame(long i, string path)
-{
-    return FrameToString(new Bitmap($"{path}{i + 1}.png"));
-}
+char[] GetFrame(long i, string path) => FrameToString(new Bitmap($"{path}{i + 1}.png"));
 
 const char slashE = (char)27;
 const char end = (char)0;
@@ -255,7 +245,7 @@ char[] FrameToString(Bitmap bp)
                 AppendString(ref s, ref i, pixelToInt(bp.GetPixel(x, y)).ToString());
                 AppendChar(ref s, ref i, 'm');
             }
-            AppendChar(ref s, ref i, PixelToChar(c));
+            AppendChar(ref s, ref i, PixelToChar(((c.R << 1) + (c.G * 5) + c.B) >> 3));
         }
         AppendChar(ref s, ref i, '\n');
     }
@@ -269,23 +259,18 @@ void AppendString(ref char[] str, ref int i,string s){
 
 void AppendChar(ref char[] str, ref int i, char c) => str[i++] = c;
 
-char PixelToChar(Color c)
+char PixelToChar(int g) => g switch
 {
-    int g = ((c.R << 1) + (c.G * 5) + c.B) >> 3;
-    if (g < 80) return ' ';
-    if (g >= 75 && g < 100) return '-';
-    if (g >= 100 && g < 120) return ':';
-    if (g >= 120 && g < 150) return '+';
-    if (g >= 150 && g < 175) return '=';
-    if (g >= 175 && g < 200) return '*';
-    return '#';
-}
+    < 80 => ' ',
+    < 100 => '-',
+    < 120 => ':',
+    < 150 => '+',
+    < 175 => '=',
+    < 200 => '*',
+    _ => '#'
+};
 
-int pixelToInt(Color c)
-{
-    if (c.R == c.G && c.G == c.B) return 232 + (c.R * 23) / 255;
-    else return (16 + ((c.R * 5) / 255) * 36 + ((c.G * 5) / 255) * 6 + (c.B * 5) / 255);
-}
+int pixelToInt(Color c) => (c.R == c.G && c.G == c.B) ? 232 + (c.R * 23) / 255 : (16 + ((c.R * 5) / 255) * 36 + ((c.G * 5) / 255) * 6 + (c.B * 5) / 255);
 
 void Cancled(object sender, ConsoleCancelEventArgs args) => Console.CursorVisible = true;
 
