@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Drawing;
 using System.Threading;
 using System.Diagnostics;
@@ -151,11 +150,12 @@ void Main(string[] args)
     if (!isRealtime)
     {
         ProcessFrames(framesDir, amont, ref frames);
-
-        Console.WriteLine("Please pesize your terminal emulator to {0}x{1}", videoWidth, videoHeight + 1);
-        Console.Write("\n\aReady,press any key to continue.");
-        Console.ReadKey(true);
     }
+
+//  Console.WriteLine("Please pesize your terminal emulator to {0}x{1}", videoWidth, videoHeight + 1);
+//  Console.Write("\n\aReady,press any key to continue.");
+//  Console.ReadKey(true);
+
     Console.Clear();
 
     Console.CursorVisible = false;
@@ -169,13 +169,12 @@ void Main(string[] args)
     {
         sourcePlayer.Start();
     }
-    if (isRealtime) PlayRealtime($"{path}{name}_{fps}/", (long)amont, fps);
-    else Play(ref frames, amont, fps);
 
+    Play(isRealtime, isRealtime? null: frames, amont, fps, isRealtime? framesDir: null);
     Console.CursorVisible = true;
 }
 
-void Play(ref char[][] frames, int amont, int fps)
+void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
 {
     long playingFrame = 0;
     long startTime = DateTime.Now.Ticks;
@@ -185,36 +184,8 @@ void Play(ref char[][] frames, int amont, int fps)
     long lastFrame = 0;
     while (playingFrame < amont)
     {
-        Console.Write(frames[playingFrame]);
+        Console.Write(isRealtime? GetFrame(playingFrame, path) : frames[playingFrame]);
         Console.Write("{3}[m {0}/{1} Rendering fps : {2} ", playingFrame, amont, showingFps, (char)27);
-        long thisTick = DateTime.Now.Ticks;
-        if (thisTick / 10000000 != lastSecond)
-        {
-            showingFps = countFrames;
-            countFrames = 1;
-            lastSecond = thisTick / 10000000;
-        }
-        else countFrames++;
-        do
-            playingFrame = (DateTime.Now.Ticks - startTime) * fps / 10000000;
-        while (playingFrame == lastFrame);
-        lastFrame = playingFrame;
-        Console.SetCursorPosition(0, 0);
-    }
-}
-
-void PlayRealtime(string path, long amont, int fps)
-{
-    long playingFrame = 0;
-    long startTime = DateTime.Now.Ticks;
-    long lastSecond = startTime / 10000000;
-    int countFrames = 1;
-    int showingFps = fps;
-    long lastFrame = 0;
-    while (playingFrame < amont)
-    {
-        Console.Write(GetFrame(playingFrame, path));
-        Console.Write("{3}[m {0}/{1} Rendering fps[Realtime]: {2} ", playingFrame, amont, showingFps, (char)27);
         long thisTick = DateTime.Now.Ticks;
         if (thisTick / 10000000 != lastSecond)
         {
@@ -257,10 +228,7 @@ string GetPath(string name)
 
 void ProcessFrames(string path, int amont, ref char[][] frames)
 {
-    for (int i = 0; i < amont;)
-    {
-        frames[i - 1] = FrameToString(new Bitmap($"{path}{++i}.png"));
-    }
+    for (int i = 0; i < amont; frames[i] = FrameToString(new Bitmap($"{path}{++i}.png"))) ;
 }
 
 char[] GetFrame(long i, string path)
