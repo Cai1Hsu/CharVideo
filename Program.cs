@@ -185,7 +185,7 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
     while (playingFrame < amont)
     {
         Console.Write(isRealtime? GetFrame(playingFrame, path) : frames[playingFrame]);
-        Console.Write(" {0} / {1} Rendering fps : {2} ", playingFrame, amont, showingFps);
+        Console.Write("{3}[m {0} / {1} Rendering fps : {2} ", playingFrame, amont, showingFps, (char)27);
         long thisTick = DateTime.Now.Ticks;
         if (thisTick / 10000000 != lastSecond)
         {
