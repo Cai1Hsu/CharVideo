@@ -165,7 +165,7 @@ void Main(string[] args)
     {
         sourcePlayer.Start();
     }
-
+    
     Play(isRealtime, isRealtime? null: frames, amont, fps, isRealtime? framesDir: null);
     Console.CursorVisible = true;
 }
@@ -259,7 +259,9 @@ void AppendString(ref char[] str, ref int i,string s){
 
 void AppendChar(ref char[] str, ref int i, char c) => str[i++] = c;
 
-char PixelToChar(int g) => "        --::+++++===***######"[g * 29 / 256];
+const string map = "        --::+++++===***######";
+
+char PixelToChar(int g) => map[g * 29 / 256];
 
 int pixelToInt(Color c) => (c.R == c.G && c.G == c.B) ? 232 + (c.R * 23) / 255 : (16 + ((c.R * 5) / 255) * 36 + ((c.G * 5) / 255) * 6 + (c.B * 5) / 255);
 
