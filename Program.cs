@@ -8,15 +8,18 @@ int fps = 30;   // for speed control
 int videoWidth = 117;
 int videoHeight = 33;      // Since a char includes 2 pixels, height should be the half of the source.
 string ratio = "16:9";
+char[] tempString = null;
 bool isRealtime         = false;
 bool isWithColor        = false;
 bool isPlayAudio        = false;
 bool isOutputOnly       = false;
 bool isFramesExist      = false;
 bool isPlaySourceVideo  = false;
+int len = 0;
 
 void Main(string[] args)
 {
+    args = @"/home/cai1hsu/Badapple60fps.mp4 -f 60 -r 4:3 -e -c --realtime".Split(' ');
     Console.CursorVisible = true;
 
     if (args.Length < 1 || args[0].ToLower() == "help" || args[0].ToLower() == "-h")
@@ -154,6 +157,8 @@ void Main(string[] args)
 
     Console.Clear();
 
+    if(isRealtime) tempString = new char[isWithColor ? (videoWidth + 1) * videoHeight * 14 + 1: (videoWidth + 1) * videoHeight + 1];
+    
     Console.CursorVisible = false;
     Console.CancelKeyPress += new ConsoleCancelEventHandler(Cancled);
 
@@ -165,7 +170,7 @@ void Main(string[] args)
     {
         sourcePlayer.Start();
     }
-    
+
     Play(isRealtime, isRealtime? null: frames, amont, fps, isRealtime? framesDir: null);
     Console.CursorVisible = true;
 }
@@ -180,7 +185,11 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
     long lastFrame = 0;
     while (playingFrame < amont)
     {
-        Console.Write(isRealtime? GetFrame(playingFrame, path) : frames[playingFrame]);
+        Console.SetCursorPosition(0, 0);
+        if(isRealtime){
+            GetFrame(playingFrame, path);
+            Console.Out.Write(tempString,0,len);
+        }else Console.Write(frames[playingFrame]);
         Console.Write("{3}[m {0} / {1} Rendering fps : {2} ", playingFrame, amont, showingFps, (char)27);
         long thisTick = DateTime.Now.Ticks;
         if (thisTick / 10000000 != lastSecond)
@@ -194,7 +203,6 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
             playingFrame = (DateTime.Now.Ticks - startTick) * fps / 10000000;
         while (playingFrame == lastFrame);
         lastFrame = playingFrame;
-        Console.SetCursorPosition(0, 0);
     }
 }
 
@@ -221,17 +229,20 @@ string GetPath(string name) => name.Substring(0, name.LastIndexOf(Path.Directory
 
 void ProcessFrames(string path, int amont, ref char[][] frames)
 {
-    for (int i = 0; i < amont; frames[i] = FrameToString(new Bitmap($"{path}{++i}.png"))) ;
+    int length = tempString.Length;
+    for(int i = 0; i < amont;frames[i++] = new char[length]);
+    for(int i = 0; i < amont;FrameToString(ref frames[i],new Bitmap($"{path}{++i}.png"))) ;
 }
 
-char[] GetFrame(long i, string path) => FrameToString(new Bitmap($"{path}{i + 1}.png"));
-
+char[] GetFrame(long i, string path){
+    FrameToString(ref tempString ,new Bitmap($"{path}{i + 1}.png"));
+    return tempString;
+}
 const char slashE = (char)27;
-const char end = (char)0;
 
-char[] FrameToString(Bitmap bp)
+void FrameToString(ref char[] s, Bitmap bp)
 {
-    char[] s = new char[isWithColor ? (videoWidth + 1) * videoHeight * 14 + 1: (videoWidth + 1) * videoHeight + 1]; 
+
     int i = 0;
     for (int y = 0; y < videoHeight; y++)
     {
@@ -249,8 +260,7 @@ char[] FrameToString(Bitmap bp)
         }
         AppendChar(ref s, ref i, '\n');
     }
-    AppendChar(ref s, ref i, end);
-    return s;
+    len = i;
 }
 
 void AppendString(ref char[] str, ref int i,string s){
