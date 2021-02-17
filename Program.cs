@@ -19,7 +19,6 @@ int len = 0;
 
 void Main(string[] args)
 {
-    args = @"/home/cai1hsu/Badapple60fps.mp4 -f 60 -r 4:3 -e -c --realtime".Split(' ');
     Console.CursorVisible = true;
 
     if (args.Length < 1 || args[0].ToLower() == "help" || args[0].ToLower() == "-h")
@@ -229,7 +228,7 @@ string GetPath(string name) => name.Substring(0, name.LastIndexOf(Path.Directory
 
 void ProcessFrames(string path, int amont, ref char[][] frames)
 {
-    int length = tempString.Length;
+    int length = isWithColor ? (videoWidth + 1) * videoHeight * 14 + 1: (videoWidth + 1) * videoHeight;
     for(int i = 0; i < amont;frames[i++] = new char[length]);
     for(int i = 0; i < amont;FrameToString(ref frames[i],new Bitmap($"{path}{++i}.png"))) ;
 }
@@ -238,6 +237,7 @@ char[] GetFrame(long i, string path){
     FrameToString(ref tempString ,new Bitmap($"{path}{i + 1}.png"));
     return tempString;
 }
+
 const char slashE = (char)27;
 
 void FrameToString(ref char[] s, Bitmap bp)
