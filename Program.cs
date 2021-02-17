@@ -201,7 +201,7 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
 void PlaySource(string videoFile)
 {
     string arg = string.Format("{0} -an -autoexit -loglevel quiet", videoFile);
-    Process.Start("ffplay", arg);
+    Process.Start("ffplay", arg).WaitForExit();
 }
 
 void PlayAudio(string videoFile)
@@ -212,9 +212,9 @@ void PlayAudio(string videoFile)
 
 void OutputFrames(string pathandname, int fps, string path)
 {
-    string arg = string.Format(" -i \"{0}\" -r {1} -s {2}x{3} {4}%d.png -loglevel quiet",
+    string arg = string.Format("-i \"{0}\" -r {1} -s {2}x{3} {4}%d.png -loglevel quiet",
         pathandname, fps, videoWidth, videoHeight, path);
-    Process.Start("ffmpeg", arg);
+    Process.Start("ffmpeg", arg).WaitForExit();
 }
 
 string GetPath(string name) => name.Substring(0, name.LastIndexOf(Path.DirectorySeparatorChar) + 1);
