@@ -1,4 +1,5 @@
 ![](https://github.com/Cai1Hsu/CharVideo/workflows/CodeQL/badge.svg)
+
 This program allows you to play a video in chars.
 
 The code is a little messy, I'll clean it another time.
