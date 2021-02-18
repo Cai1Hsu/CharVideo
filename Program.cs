@@ -97,8 +97,8 @@ void Main(string[] args)
                 int x = Convert.ToInt32(ratio.Split(':')[0]);
                 int y = Convert.ToInt32(ratio.Split(':')[1]);
                 int w1 = Console.WindowWidth;
-                int h1 = (w1 * y / x) >> 1;
-                int h2 = Console.WindowHeight;
+                int h1 = (w1 * y / x) >> 1 - 1;
+                int h2 = Console.WindowHeight - 1;
                 int w2 = h2 * 2 * x / y;
                 if (h1 > Console.WindowHeight)
                 {
@@ -228,7 +228,7 @@ string GetPath(string name) => name.Substring(0, name.LastIndexOf(Path.Directory
 
 void ProcessFrames(string path, int amont, ref char[][] frames)
 {
-    int length = isWithColor ? (videoWidth + 1) * videoHeight * 14 + 1: (videoWidth + 1) * videoHeight;
+    int length = isWithColor ? (videoWidth + -1) * videoHeight * 14 + 1: (videoWidth + 1) * videoHeight;
     for(int i = 0; i < amont;frames[i++] = new char[length]);
     for(int i = 0; i < amont;FrameToString(ref frames[i],new Bitmap($"{path}{++i}.png"))) ;
 }
