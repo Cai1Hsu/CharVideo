@@ -9,12 +9,13 @@ int videoWidth = 117;
 int videoHeight = 33;      // Since a char includes 2 pixels, height should be the half of the source.
 string ratio = "16:9";
 char[] tempString = null;
-bool isRealtime         = false;
+bool isRealtime         = true;
 bool isWithColor        = false;
 bool isPlayAudio        = false;
 bool isOutputOnly       = false;
 bool isFramesExist      = false;
 bool isPlaySourceVideo  = false;
+bool isGotFps           = false;
 int len = 0;
 
 void Main(string[] args)
@@ -75,6 +76,7 @@ void Main(string[] args)
                     Console.WriteLine(ex.Message);
                     Console.WriteLine("invalid input, fps was set to 30 by default.");
                 }
+                isGotFps = true;
                 break;
             case "-e":
                 isFramesExist = true;
@@ -111,6 +113,10 @@ void Main(string[] args)
                     videoWidth = w1;
                 }
                 break;
+            case "--pre-render":
+            case "-pr":
+                isRealtime = false;
+                break;
         }
     }
 
@@ -118,6 +124,12 @@ void Main(string[] args)
 
     string name = video.Name.Substring(0, video.Name.LastIndexOf('.'));
     string path = GetPath(video.FullName);
+    
+    if(!isGotFps){
+        Console.Write("Getting video frames rate...\t\t");
+        fps = GetVideoFps($"{video.FullName}");
+    }
+        
     string framesDir = $"{path}{name}_{fps}{Path.DirectorySeparatorChar}";
 
     if (!isFramesExist || !Directory.Exists(framesDir))
@@ -225,6 +237,19 @@ void OutputFrames(string pathandname, int fps, string path)
 }
 
 string GetPath(string name) => name.Substring(0, name.LastIndexOf(Path.DirectorySeparatorChar) + 1);
+
+int GetVideoFps(string file){
+    string arg = string.Format("-v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate {0}",file); 
+    Process p = new Process();
+    p.StartInfo.FileName = "ffprobe";
+    p.StartInfo.Arguments = arg;
+    p.StartInfo.RedirectStandardOutput = true;
+    p.StartInfo.UseShellExecute = false;
+    p.Start();
+    string o = p.StandardOutput.ReadToEnd();
+    p.WaitForExit();
+    return Convert.ToInt32(o.Substring(0, o.LastIndexOf('/')));
+}
 
 void ProcessFrames(string path, int amont, ref char[][] frames)
 {
