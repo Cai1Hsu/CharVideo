@@ -16,6 +16,8 @@ bool isOutputOnly       = false;
 bool isFramesExist      = false;
 bool isPlaySourceVideo  = false;
 bool isGotFps           = false;
+bool isInputRatio       = false;
+bool isMaximize         = false;
 int len = 0;
 
 void Main(string[] args)
@@ -62,6 +64,7 @@ void Main(string[] args)
                     videoWidth = Convert.ToInt32(size[0]);
                     videoHeight = Convert.ToInt32(size[1]);
                 }
+                isInputRatio = true;
                 break;
             case "-a":
                 isPlayAudio = true;
@@ -96,22 +99,7 @@ void Main(string[] args)
                 break;
             case "-m":
             case "--maximize":
-                int x = Convert.ToInt32(ratio.Split(':')[0]);
-                int y = Convert.ToInt32(ratio.Split(':')[1]);
-                int w1 = Console.WindowWidth;
-                int h1 = (w1 * y / x) >> 1 - 1;
-                int h2 = Console.WindowHeight - 1;
-                int w2 = h2 * 2 * x / y;
-                if (h1 > Console.WindowHeight)
-                {
-                    videoHeight = h2;
-                    videoWidth = w2;
-                }
-                else
-                {
-                    videoHeight = h1;
-                    videoWidth = w1;
-                }
+                isMaximize = true;               
                 break;
             case "--pre-render":
             case "-pr":
@@ -128,12 +116,45 @@ void Main(string[] args)
     if(!isGotFps){
         Console.Write("Getting video frames rate...\t");
         fps = GetVideoFps($"{video.FullName}");
+        Console.WriteLine(fps);
     }
 
-    if(!isFramesExist && Directory.Exists($"{path}{name}_{fps}") && Directory.GetFiles($"{path}{name}_{fps}").Length > 0){
-        isFramesExist = true;
+    if(!isInputRatio){
+        Console.Write("Getting video ratio...\t");
+        ratio = GetVideoRatio($"{video.FullName}");
+        Console.WriteLine(ratio);
+        if(ratio.Length == 0 || !ratio.Contains(":")){
+            Console.WriteLine("Please input video ratio.");
+            return;
+        }
+        isMaximize = true;
     }
-        
+    
+    if(isMaximize){
+        int x = Convert.ToInt32(ratio.Split(':')[0]);
+        int y = Convert.ToInt32(ratio.Split(':')[1]);
+        int w1 = Console.WindowWidth;
+        int h1 = (w1 * y / x) >> 1 - 1;
+        int h2 = Console.WindowHeight - 1;
+        int w2 = h2 * 2 * x / y;
+        if (h1 > Console.WindowHeight)
+        {
+            videoHeight = h2;
+            videoWidth = w2;
+        }
+        else
+        {
+            videoHeight = h1;
+            videoWidth = w1;
+        }
+    }
+
+    if(Directory.Exists($"{path}{name}_{fps}") && Directory.GetFiles($"{path}{name}_{fps}").Length > 0){
+        isFramesExist = true;
+    }else{
+        isFramesExist = false;
+    }
+    
     string framesDir = $"{path}{name}_{fps}{Path.DirectorySeparatorChar}";
 
     if (!isFramesExist || !Directory.Exists(framesDir))
@@ -237,13 +258,14 @@ void OutputFrames(string pathandname, int fps, string path)
 {
     string arg = string.Format("-i \"{0}\" -r {1} -s {2}x{3} {4}%d.png -loglevel quiet",
         pathandname, fps, videoWidth, videoHeight, path);
+    Console.WriteLine(arg);
     Process.Start("ffmpeg", arg).WaitForExit();
 }
 
 string GetPath(string name) => name.Substring(0, name.LastIndexOf(Path.DirectorySeparatorChar) + 1);
 
 int GetVideoFps(string file){
-    string arg = string.Format("-v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate {0}",file); 
+    string arg = string.Format("-v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate {0}", file); 
     Process p = new Process();
     p.StartInfo.FileName = "ffprobe";
     p.StartInfo.Arguments = arg;
@@ -253,6 +275,19 @@ int GetVideoFps(string file){
     string o = p.StandardOutput.ReadToEnd();
     p.WaitForExit();
     return Convert.ToInt32(o.Substring(0, o.LastIndexOf('/')));
+}
+
+string GetVideoRatio(string file){
+    string arg = string.Format("-v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=display_aspect_ratio {0}", file);
+    Process p = new Process();
+    p.StartInfo.FileName = "ffprobe";
+    p.StartInfo.Arguments = arg;
+    p.StartInfo.RedirectStandardOutput = true;
+    p.StartInfo.UseShellExecute = false;
+    p.Start();
+    string o = p.StandardOutput.ReadToEnd();
+    p.WaitForExit();
+    return o;
 }
 
 void ProcessFrames(string path, int amont, ref char[][] frames)
