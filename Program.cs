@@ -126,8 +126,12 @@ void Main(string[] args)
     string path = GetPath(video.FullName);
     
     if(!isGotFps){
-        Console.Write("Getting video frames rate...\t\t");
+        Console.Write("Getting video frames rate...\t");
         fps = GetVideoFps($"{video.FullName}");
+    }
+
+    if(!isFramesExist && Directory.Exists($"{path}{name}_{fps}") && Directory.GetFiles($"{path}{name}_{fps}").Length > 0){
+        isFramesExist = true;
     }
         
     string framesDir = $"{path}{name}_{fps}{Path.DirectorySeparatorChar}";
