@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Drawing;
 using System.Threading;
 using System.Diagnostics;
 
+int len = -1;
 int fps = 30;   // for speed control
 int videoWidth = 117;
 int videoHeight = 33;      // Since a char includes 2 pixels, height should be the half of the source.
@@ -18,7 +19,7 @@ bool isPlaySourceVideo  = false;
 bool isGotFps           = false;
 bool isInputRatio       = false;
 bool isMaximize         = false;
-int len = 0;
+const char escapeChar = (char)27;
 
 void Main(string[] args)
 {
@@ -191,7 +192,7 @@ void Main(string[] args)
         ProcessFrames(framesDir, amont, ref frames);
     }
 
-    Console.Clear();
+    for (int i = 0; i++ < Console.WindowHeight; Console.Write('\n')) ;
 
     if(isRealtime) tempString = new char[isWithColor ? (videoWidth + 1) * videoHeight * 14 + 1: (videoWidth + 1) * videoHeight + 1];
     
@@ -219,14 +220,14 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
     int countFrames = 1;
     int showingFps = fps;
     long lastFrame = 0;
+    GetFrame(playingFrame, path);
     while (playingFrame < amont)
     {
         Console.SetCursorPosition(0, 0);
         if(isRealtime){
-            GetFrame(playingFrame, path);
             Console.Out.Write(tempString,0,len);
         }else Console.Write(frames[playingFrame]);
-        Console.Write("{3}[m {0} / {1} Rendering fps : {2} ", playingFrame, amont, showingFps, (char)27);
+        Console.Write("{3}[m {0} / {1} Rendering fps : {2} ", playingFrame, amont, showingFps, escapeChar);
         long thisTick = DateTime.Now.Ticks;
         if (thisTick / 10000000 != lastSecond)
         {
@@ -235,9 +236,10 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
             lastSecond = thisTick / 10000000;
         }
         else countFrames++;
-        do
+        for(;playingFrame == lastFrame;){
+            GetFrame(playingFrame + 1, path);
             playingFrame = (DateTime.Now.Ticks - startTick) * fps / 10000000;
-        while (playingFrame == lastFrame);
+        }
         lastFrame = playingFrame;
     }
 }
@@ -258,14 +260,13 @@ void OutputFrames(string pathandname, int fps, string path)
 {
     string arg = string.Format("-i \"{0}\" -r {1} -s {2}x{3} {4}%d.png -loglevel quiet",
         pathandname, fps, videoWidth, videoHeight, path);
-    Console.WriteLine(arg);
     Process.Start("ffmpeg", arg).WaitForExit();
 }
 
 string GetPath(string name) => name.Substring(0, name.LastIndexOf(Path.DirectorySeparatorChar) + 1);
 
 int GetVideoFps(string file){
-    string arg = string.Format("-v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate {0}", file); 
+    string arg = string.Format("-v quiet -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate {0}", file); 
     Process p = new Process();
     p.StartInfo.FileName = "ffprobe";
     p.StartInfo.Arguments = arg;
@@ -278,7 +279,7 @@ int GetVideoFps(string file){
 }
 
 string GetVideoRatio(string file){
-    string arg = string.Format("-v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=display_aspect_ratio {0}", file);
+    string arg = string.Format("-v quiet -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=display_aspect_ratio {0}", file);
     Process p = new Process();
     p.StartInfo.FileName = "ffprobe";
     p.StartInfo.Arguments = arg;
@@ -302,8 +303,6 @@ char[] GetFrame(long i, string path){
     return tempString;
 }
 
-const char slashE = (char)27;
-
 void FrameToString(ref char[] s, Bitmap bp)
 {
 
@@ -315,7 +314,7 @@ void FrameToString(ref char[] s, Bitmap bp)
             Color c = bp.GetPixel(x, y);
             if (isWithColor)
             {
-                AppendChar(ref s, ref i, slashE);
+                AppendChar(ref s, ref i, escapeChar);
                 AppendString(ref s, ref i, "[0;38;5;");
                 AppendString(ref s, ref i, pixelToInt(bp.GetPixel(x, y)).ToString());
                 AppendChar(ref s, ref i, 'm');
