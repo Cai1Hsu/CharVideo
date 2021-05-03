@@ -9,10 +9,11 @@ int fps = 30;   // for speed control
 int videoWidth = 117;
 int videoHeight = 33;      // Since a char includes 2 pixels, height should be the half of the source.
 string ratio = "16:9";
+string framesDir = null;
 char[] tempString = null;
 bool isRealtime         = true;
 bool isWithColor        = false;
-bool isPlayAudio        = false;
+bool isPlayAudio        = true;
 bool isOutputOnly       = false;
 bool isFramesExist      = false;
 bool isPlaySourceVideo  = false;
@@ -106,6 +107,9 @@ void Main(string[] args)
             case "-pr":
                 isRealtime = false;
                 break;
+            case "-na":
+                isPlayAudio = false;
+                break;
         }
     }
 
@@ -156,7 +160,7 @@ void Main(string[] args)
         isFramesExist = false;
     }
     
-    string framesDir = $"{path}{name}_{fps}{Path.DirectorySeparatorChar}";
+    framesDir = $"{path}{name}_{fps}{Path.DirectorySeparatorChar}";
 
     if (!isFramesExist || !Directory.Exists(framesDir))
     {
@@ -220,7 +224,7 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
     int countFrames = 1;
     int showingFps = fps;
     long lastFrame = 0;
-    GetFrame(playingFrame, path);
+    GetFrame(playingFrame);
     while (playingFrame < amont)
     {
         Console.SetCursorPosition(0, 0);
@@ -237,7 +241,7 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
         }
         else countFrames++;
         for(;playingFrame == lastFrame;){
-            GetFrame(playingFrame + 1, path);
+            if(playingFrame != amont - 1)GetFrame(playingFrame + 1);
             playingFrame = (DateTime.Now.Ticks - startTick) * fps / 10000000;
         }
         lastFrame = playingFrame;
@@ -298,9 +302,9 @@ void ProcessFrames(string path, int amont, ref char[][] frames)
     for(int i = 0; i < amont;FrameToString(ref frames[i],new Bitmap($"{path}{++i}.png"))) ;
 }
 
-char[] GetFrame(long i, string path){
-    FrameToString(ref tempString ,new Bitmap($"{path}{i + 1}.png"));
-    return tempString;
+char[] GetFrame(long i){
+    FrameToString(ref tempString ,new Bitmap($"{framesDir}{i + 1}.png"));
+    return isRealtime?null:tempString;
 }
 
 void FrameToString(ref char[] s, Bitmap bp)
@@ -332,9 +336,20 @@ void AppendString(ref char[] str, ref int i,string s){
 
 void AppendChar(ref char[] str, ref int i, char c) => str[i++] = c;
 
-const string map = "        --::+++++===***######";
+const string map = "              -----::::++++++=====*****###########";//"        --::+++++===***######";
 
-char PixelToChar(int g) => map[g * 29 / 256];
+char PixelToChar(int g) => map[g * 50 / 256];
+
+char PixelToCharA(int g)
+{
+    if (g < 75) return ' ';
+    if (g >= 75 && g < 100) return '-';
+    if (g >= 100 && g < 120) return ':';
+    if (g >= 120 && g < 150) return '+';
+    if (g >= 150 && g < 175) return '=';
+    if (g >= 175 && g < 200) return '*';
+    return '#';
+}
 
 int pixelToInt(Color c) => (c.R == c.G && c.G == c.B) ? 232 + (c.R * 23) / 255 : (16 + ((c.R * 5) / 255) * 36 + ((c.G * 5) / 255) * 6 + (c.B * 5) / 255);
 
