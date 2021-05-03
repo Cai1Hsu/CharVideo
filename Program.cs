@@ -240,8 +240,8 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
             lastSecond = thisTick / 10000000;
         }
         else countFrames++;
+        if(playingFrame != amont - 1) GetFrame(playingFrame + 1);
         for(;playingFrame == lastFrame;){
-            if(playingFrame != amont - 1)GetFrame(playingFrame + 1);
             playingFrame = (DateTime.Now.Ticks - startTick) * fps / 10000000;
         }
         lastFrame = playingFrame;
@@ -339,17 +339,6 @@ void AppendChar(ref char[] str, ref int i, char c) => str[i++] = c;
 const string map = "              -----::::++++++=====*****###########";//"        --::+++++===***######";
 
 char PixelToChar(int g) => map[g * 50 / 256];
-
-char PixelToCharA(int g)
-{
-    if (g < 75) return ' ';
-    if (g >= 75 && g < 100) return '-';
-    if (g >= 100 && g < 120) return ':';
-    if (g >= 120 && g < 150) return '+';
-    if (g >= 150 && g < 175) return '=';
-    if (g >= 175 && g < 200) return '*';
-    return '#';
-}
 
 int pixelToInt(Color c) => (c.R == c.G && c.G == c.B) ? 232 + (c.R * 23) / 255 : (16 + ((c.R * 5) / 255) * 36 + ((c.G * 5) / 255) * 6 + (c.B * 5) / 255);
 
