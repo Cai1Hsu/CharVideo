@@ -15,18 +15,7 @@ The code is a little messy, I'll clean it another time.
    - .Net 5
    - ffmpeg
    - libgdiplus
-
-
-
-#### .Net 5
-
-```bash
-wget https://download.visualstudio.microsoft.com/download/pr/7f736160-9f34-4595-8d72-13630c437aef/b9c4513afb0f8872eb95793c70ac52f6/dotnet-sdk-5.0.102-linux-x64.tar.gz
-mkdir -p $HOME/dotnet && tar zxf dotnet-sdk-5.0.102-linux-x64.tar.gz -C $HOME/dotnet
-echo "\nexport PATH=$PATH:$HOME/dotnet\nexport DOTNET_ROOT=$HOME/dotnet">>~/.zshrc
-soruce ~/.zshrc
-```
-
+   
    ##### Arch
 
    ```bash
@@ -38,11 +27,14 @@ sudo pacman -S ffmpeg libgdiplus git
    ```bash
 sudo apt install ffmpeg libgdiplus git
    ```
-
-### 2. Build it.
+   
+   #### Install .Net5
+   [.Net5](https://dotnet.microsoft.com/download/dotnet/5.0)
+   
+### 2. Build
 
    ```bash
-git clone github.com/cai1xu/CharVideo
+git clone github.com/cai1hsu/CharVideo
 cd CharVideo
 dotnet restore
 dotnet build
@@ -54,54 +46,22 @@ dotnet build
 sudo ln -s $(pwd)/bin/Debug/net5.0/charvideo /usr/bin/charplayer
 ```
 
-
-
-### 4. Enjoy
-
-RECOMMEND : You should really try this super awesome terminal emulator [Alacritty](https://github.com/alacritty/alacritty).
+### 4.
 
 ```bash
-charplayer [videofile] -f [fps] -r [resolution] -a
+charplayer [videofile] [option]
 ```
 
-### On a new PC ? Get Started with the commands below at one step.
-#### Arch
-```bash
-sudo apt install ffmpeg libgdiplus git
-wget https://download.visualstudio.microsoft.com/download/pr/7f736160-9f34-4595-8d72-13630c437aef/b9c4513afb0f8872eb95793c70ac52f6/dotnet-sdk-5.0.102-linux-x64.tar.gz
-mkdir -p $HOME/dotnet && tar zxf dotnet-sdk-5.0.102-linux-x64.tar.gz -C $HOME/dotnet
-echo "\nexport PATH=$PATH:$HOME/dotnet\nexport DOTNET_ROOT=$HOME/dotnet">>~/.bashrc
-soruce ~/.bashrc
-git clone github.com/cai1xu/CharVideo
-cd CharVideo
-dotnet build
-sudo ln -s $(pwd)/bin/Debug/net5.0/charvideo /usr/bin/charplayer
-```
-
-#### Debian
-
-```Bash
-sudo apt install ffmpeg libgdiplus git
-wget https://download.visualstudio.microsoft.com/download/pr/7f736160-9f34-4595-8d72-13630c437aef/b9c4513afb0f8872eb95793c70ac52f6/dotnet-sdk-5.0.102-linux-x64.tar.gz
-mkdir -p $HOME/dotnet && tar zxf dotnet-sdk-5.0.102-linux-x64.tar.gz -C $HOME/dotnet
-echo "\nexport PATH=$PATH:$HOME/dotnet\nexport DOTNET_ROOT=$HOME/dotnet">>~/.bashrc
-soruce ~/.bashrc
-git clone github.com/cai1xu/CharVideo
-cd CharVideo
-dotnet build
-sudo ln -s $(pwd)/bin/Debug/net5.0/charvideo /usr/bin/charplayer
-```
 
 ## Usage
-
-        -f						Specify the value of the fps
-
-        -r						Specify the value of the resolution/ratio
-
-        -a						Enable audio player
-
-        --realtime		        Render frames while playing
-        
-        -c                      Play the video with colors
-        
-        -m                      Play the video as big as your terminal can
+   `charvideo [videofile] [option]`
+   
+   eg : `charvideo a.mp4`
+   
+#### Options
+   - -f Input fps manually.
+   - -r Input resolution manually.
+   - --output_only -o Output Frames and exit.
+   - -c Use 256 colors.
+   - --pre-render -pr Render frames before play.
+   - -na do not play audio
