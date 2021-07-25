@@ -29,8 +29,12 @@ void Main(string[] args)
     if (args.Length < 1 || args[0].ToLower() == "help" || args[0].ToLower() == "-h")
     {
         Console.WriteLine(@"
-    Usage : CharVideo [videofile](absoluted path) -f [fps] -r [width:hight or width x height] -a(optional, means that you want to play audio) -e(optional, if there are frame files exist)
-    example CharVideo ~/a.mp4 -f 60 -r 4:3 -a -e");
+    Usage : CharVideo [videofile](path) [option]
+	   eg : CharVideo ~/a.mp4
+	option:
+		--output_only 		-o 		Only output images and exit.
+		For more infomation, see the source code.
+		...");
         return;
     }
 
@@ -110,6 +114,9 @@ void Main(string[] args)
             case "-na":
                 isPlayAudio = false;
                 break;
+			default:
+				Console.WriteLine($"\a[!] Unexcptation argument : {args[i]}");
+				return;
         }
     }
 
@@ -248,29 +255,31 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
     }
 }
 
+string GetPath(string name) => name.Substring(0, name.LastIndexOf(Path.DirectorySeparatorChar) + 1);
+
+string StringToString(string str) => str.Length == 0?str:(str[0] == '\"' ? str : ('\"' + str + '\"') );
+
 void PlaySource(string videoFile)
 {
-    string arg = string.Format("{0} -an -autoexit -loglevel quiet", videoFile);
+    string arg = string.Format("{0} -an -autoexit -loglevel quiet", StringToString(videoFile));
     Process.Start("ffplay", arg).WaitForExit();
 }
 
 void PlayAudio(string videoFile)
 {
-    string arg = string.Format("{0} -nodisp -autoexit -loglevel quiet", videoFile);
-    Process.Start("ffplay", arg).WaitForExit();
+    string arg = string.Format("{0} -nodisp -autoexit -loglevel quiet", StringToString(videoFile));
+	Process.Start("ffplay", arg).WaitForExit();
 }
 
 void OutputFrames(string pathandname, int fps, string path)
 {
-    string arg = string.Format("-i \"{0}\" -r {1} -s {2}x{3} {4}%d.png -loglevel quiet",
-        pathandname, fps, videoWidth, videoHeight, path);
+    string arg = string.Format("-i {0} -r {1} -s {2}x{3} {4} -loglevel quiet",	
+		StringToString(pathandname), fps, videoWidth, videoHeight, StringToString($"{path}%d.png"));
     Process.Start("ffmpeg", arg).WaitForExit();
 }
 
-string GetPath(string name) => name.Substring(0, name.LastIndexOf(Path.DirectorySeparatorChar) + 1);
-
 int GetVideoFps(string file){
-    string arg = string.Format("-v quiet -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate {0}", file); 
+	string arg = string.Format("-v quiet -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate {0}", StringToString(file)); 
     Process p = new Process();
     p.StartInfo.FileName = "ffprobe";
     p.StartInfo.Arguments = arg;
@@ -279,11 +288,11 @@ int GetVideoFps(string file){
     p.Start();
     string o = p.StandardOutput.ReadToEnd();
     p.WaitForExit();
-    return Convert.ToInt32(o.Substring(0, o.LastIndexOf('/')));
+	return Convert.ToInt32(o.Substring(0, o.LastIndexOf('/')));
 }
 
 string GetVideoRatio(string file){
-    string arg = string.Format("-v quiet -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=display_aspect_ratio {0}", file);
+    string arg = string.Format("-v quiet -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=display_aspect_ratio {0}", StringToString(file));
     Process p = new Process();
     p.StartInfo.FileName = "ffprobe";
     p.StartInfo.Arguments = arg;
@@ -303,7 +312,7 @@ void ProcessFrames(string path, int amont, ref char[][] frames)
 }
 
 char[] GetFrame(long i){
-    FrameToString(ref tempString ,new Bitmap($"{framesDir}{i + 1}.png"));
+	FrameToString(ref tempString ,new Bitmap($"{framesDir}{i + 1}.png"));
     return isRealtime?null:tempString;
 }
 
