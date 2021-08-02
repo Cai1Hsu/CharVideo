@@ -55,7 +55,7 @@ charplayer [videofile] [option]
 ## Usage
    `charvideo [videofile] [option]`
    
-   eg : `charvideo a.mp4`
+   eg : `charvideo a.mp4 -c`
    
 #### Options
    - -f Input fps manually.
