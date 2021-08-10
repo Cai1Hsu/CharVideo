@@ -1,22 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Cai1 Hsu\\Desktop\\charVideo\\charvideo.csproj": {}
+    "C:\\Users\\Cai1 Hsu\\CharVideo\\charvideo.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Cai1 Hsu\\Desktop\\charVideo\\charvideo.csproj": {
+    "C:\\Users\\Cai1 Hsu\\CharVideo\\charvideo.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Cai1 Hsu\\Desktop\\charVideo\\charvideo.csproj",
+        "projectUniqueName": "C:\\Users\\Cai1 Hsu\\CharVideo\\charvideo.csproj",
         "projectName": "charvideo",
-        "projectPath": "C:\\Users\\Cai1 Hsu\\Desktop\\charVideo\\charvideo.csproj",
+        "projectPath": "C:\\Users\\Cai1 Hsu\\CharVideo\\charvideo.csproj",
         "packagesPath": "C:\\Users\\Cai1 Hsu\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Cai1 Hsu\\Desktop\\charVideo\\obj\\",
+        "outputPath": "C:\\Users\\Cai1 Hsu\\CharVideo\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
+          "C:\\Users\\Cai1 Hsu\\CharVideo\\NuGet.Config",
           "C:\\Users\\Cai1 Hsu\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -24,8 +25,9 @@
           "net5.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-experimental/nuget/v3/index.json": {}
         },
         "frameworks": {
           "net5.0": {
@@ -43,6 +45,10 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "dependencies": {
+            "Microsoft.DotNet.ILCompiler": {
+              "target": "Package",
+              "version": "[6.0.0-*, )"
+            },
             "System.Drawing.Common": {
               "target": "Package",
               "version": "[5.0.0, )"

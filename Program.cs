@@ -5,9 +5,9 @@ using System.Threading;
 using System.Diagnostics;
 
 int len = -1;
-int fps = 30;   // for speed control
+int fps = 30;
 int videoWidth = 117;
-int videoHeight = 33;      // Since a char includes 2 pixels, height should be the half of the source.
+int videoHeight = 33;
 string ratio = "16:9";
 string framesDir = null;
 char[] tempString = null;
@@ -28,13 +28,15 @@ void Main(string[] args)
 
     if (args.Length < 1 || args[0].ToLower() == "help" || args[0].ToLower() == "-h")
     {
-        Console.WriteLine(@"
-    Usage : CharVideo [videofile](path) [option]
-	   eg : CharVideo ~/a.mp4
+        Console.WriteLine(@"Usage : CharVideo [videofile](path) [option]
+eg : CharVideo ~/a.mp4
 	option:
 		--output_only 		-o 		Only output images and exit.
-		For more infomation, see the source code.
-		...");
+		-f 					-f 		Input fps manually.
+		-r 					-r		Input resolution manually.
+		-c 					-c		Use 256 colors.
+		--pre-render 		-pr 	Render frames before play.
+		-na 				-na		Do not play audio.");
         return;
     }
 
@@ -71,9 +73,6 @@ void Main(string[] args)
                     videoHeight = Convert.ToInt32(size[1]);
                 }
                 isInputRatio = true;
-                break;
-            case "-a":
-                isPlayAudio = true;
                 break;
             case "-f":
                 try
@@ -171,6 +170,7 @@ void Main(string[] args)
 
     if (!isFramesExist || !Directory.Exists(framesDir))
     {
+		Console.Write("Processing frames.");
         Directory.CreateDirectory(framesDir);
         OutputFrames(video.FullName, fps, framesDir);
     }
@@ -225,34 +225,41 @@ void Main(string[] args)
 
 void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
 {
+	Stopwatch timer = new Stopwatch();
+	timer.Reset();
+    timer.Start();
     long playingFrame = 0;
-    long startTick = DateTime.Now.Ticks;
-    long lastSecond = startTick / 10000000;
+    long lastSecond = timer.ElapsedMilliseconds / 1000;
     int countFrames = 1;
     int showingFps = fps;
     long lastFrame = 0;
     GetFrame(playingFrame);
     while (playingFrame < amont)
     {
-        Console.SetCursorPosition(0, 0);
+        // print frame
         if(isRealtime){
             Console.Out.Write(tempString,0,len);
         }else Console.Write(frames[playingFrame]);
-        Console.Write("{3}[m {0} / {1} Rendering fps : {2} ", playingFrame, amont, showingFps, escapeChar);
-        long thisTick = DateTime.Now.Ticks;
-        if (thisTick / 10000000 != lastSecond)
+        if(isWithColor) Console.Write($"{escapeChar}[0m");
+        Console.Write("{0} / {1} Rendering fps : {2}", playingFrame, amont, showingFps);
+        
+        lastFrame = playingFrame;
+        // rendering fps counter
+        if (timer.ElapsedMilliseconds / 1000 != lastSecond)
         {
             showingFps = countFrames;
             countFrames = 1;
-            lastSecond = thisTick / 10000000;
+            lastSecond = timer.ElapsedMilliseconds / 1000;
         }
         else countFrames++;
+        // pre-render
         if(playingFrame != amont - 1) GetFrame(playingFrame + 1);
-        for(;playingFrame == lastFrame;){
-            playingFrame = (DateTime.Now.Ticks - startTick) * fps / 10000000;
-        }
-        lastFrame = playingFrame;
+        // reset cursor
+        Console.SetCursorPosition(0,0);
+        // frame limit
+        SpinWait.SpinUntil(() => (playingFrame = timer.ElapsedMilliseconds * fps / 1000) > lastFrame );
     }
+    timer.Stop();
 }
 
 string GetPath(string name) => name.Substring(0, name.LastIndexOf(Path.DirectorySeparatorChar) + 1);
@@ -273,9 +280,9 @@ void PlayAudio(string videoFile)
 
 void OutputFrames(string pathandname, int fps, string path)
 {
-    string arg = string.Format("-i {0} -r {1} -s {2}x{3} {4} -loglevel quiet",	
+    string arg = string.Format(" -i {0} -r {1} -s {2}x{3} {4} -threads 4 -preset ultrafast -c:v h264_nvenc -cq 51 -loglevel quiet",	
 		StringToString(pathandname), fps, videoWidth, videoHeight, StringToString($"{path}%d.png"));
-    Process.Start("ffmpeg", arg).WaitForExit();
+	Process.Start("ffmpeg", arg).WaitForExit();
 }
 
 int GetVideoFps(string file){
@@ -318,7 +325,6 @@ char[] GetFrame(long i){
 
 void FrameToString(ref char[] s, Bitmap bp)
 {
-
     int i = 0;
     for (int y = 0; y < videoHeight; y++)
     {
@@ -327,23 +333,23 @@ void FrameToString(ref char[] s, Bitmap bp)
             Color c = bp.GetPixel(x, y);
             if (isWithColor)
             {
-                AppendChar(ref s, ref i, escapeChar);
-                AppendString(ref s, ref i, "[0;38;5;");
-                AppendString(ref s, ref i, pixelToInt(bp.GetPixel(x, y)).ToString());
-                AppendChar(ref s, ref i, 'm');
+                AppendChar(s, ref  i, escapeChar);
+                AppendString(s, ref i, "[0;38;5;");
+                AppendString(s, ref i, pixelToInt(bp.GetPixel(x, y)).ToString());
+                AppendChar(s, ref i, 'm');
             }
-            AppendChar(ref s, ref i, PixelToChar((c.R * 306 + c.G * 601 + c.B * 117) >> 10));
+            AppendChar(s, ref i, PixelToChar((c.R * 306 + c.G * 601 + c.B * 117) >> 10));
         }
-        AppendChar(ref s, ref i, '\n');
+        AppendChar(s, ref i, '\n');
     }
     len = i;
 }
 
-void AppendString(ref char[] str, ref int i,string s){
+void AppendString(char[] str, ref int i,string s){
     for(int l = 0;l < s.Length;l++) str[i++] = s[l];
 }
 
-void AppendChar(ref char[] str, ref int i, char c) => str[i++] = c;
+void AppendChar(char[] str, ref int i, char c) => str[i++] = c;
 
 const string map = "              -----::::++++++=====*****###########";//"        --::+++++===***######";
 

@@ -2,6 +2,12 @@
   "version": 3,
   "targets": {
     "net5.0": {
+      "Microsoft.DotNet.ILCompiler/6.0.0-rc.1.21408.3": {
+        "type": "package",
+        "build": {
+          "build/Microsoft.DotNet.ILCompiler.targets": {}
+        }
+      },
       "Microsoft.NETCore.Platforms/5.0.0": {
         "type": "package",
         "compile": {
@@ -54,6 +60,34 @@
     }
   },
   "libraries": {
+    "Microsoft.DotNet.ILCompiler/6.0.0-rc.1.21408.3": {
+      "sha512": "FSHwIx5SDBvnoge0L7Zmal3lMABO86DV84flEzW22+m8DVcHQDcONR2hbmQz42Kqg6JZ7Z+kZ8Xf6lqOHmqxGQ==",
+      "type": "package",
+      "path": "microsoft.dotnet.ilcompiler/6.0.0-rc.1.21408.3",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "build/BuildFrameworkNativeObjects.proj",
+        "build/CoreRTNatVis.natvis",
+        "build/Microsoft.DotNet.ILCompiler.targets",
+        "build/Microsoft.NETCore.Native.Publish.targets",
+        "build/Microsoft.NETCore.Native.Unix.props",
+        "build/Microsoft.NETCore.Native.Windows.props",
+        "build/Microsoft.NETCore.Native.targets",
+        "build/WindowsAPIs.txt",
+        "build/findvcvarsall.bat",
+        "microsoft.dotnet.ilcompiler.6.0.0-rc.1.21408.3.nupkg.sha512",
+        "microsoft.dotnet.ilcompiler.nuspec",
+        "runtime.json",
+        "tools/netstandard/ILCompiler.Build.Tasks.deps.json",
+        "tools/netstandard/ILCompiler.Build.Tasks.dll",
+        "tools/netstandard/System.Collections.Immutable.dll",
+        "tools/netstandard/System.Reflection.Metadata.dll"
+      ]
+    },
     "Microsoft.NETCore.Platforms/5.0.0": {
       "sha512": "VyPlqzH2wavqquTcYpkIIAQ6WdenuKoFN0BdYBbCWsclXacSOHNQn66Gt4z5NBqEYW0FAPm5rlvki9ZiCij5xQ==",
       "type": "package",
@@ -145,6 +179,7 @@
   },
   "projectFileDependencyGroups": {
     "net5.0": [
+      "Microsoft.DotNet.ILCompiler >= 6.0.0-*",
       "System.Drawing.Common >= 5.0.0"
     ]
   },
@@ -155,16 +190,17 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Cai1 Hsu\\Desktop\\CharVideo\\charvideo.csproj",
+      "projectUniqueName": "C:\\Users\\Cai1 Hsu\\CharVideo\\charvideo.csproj",
       "projectName": "charvideo",
-      "projectPath": "C:\\Users\\Cai1 Hsu\\Desktop\\CharVideo\\charvideo.csproj",
+      "projectPath": "C:\\Users\\Cai1 Hsu\\CharVideo\\charvideo.csproj",
       "packagesPath": "C:\\Users\\Cai1 Hsu\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Cai1 Hsu\\Desktop\\CharVideo\\obj\\",
+      "outputPath": "C:\\Users\\Cai1 Hsu\\CharVideo\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
+        "C:\\Users\\Cai1 Hsu\\CharVideo\\NuGet.Config",
         "C:\\Users\\Cai1 Hsu\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -172,8 +208,8 @@
         "net5.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "https://api.nuget.org/v3/index.json": {}
+        "https://api.nuget.org/v3/index.json": {},
+        "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-experimental/nuget/v3/index.json": {}
       },
       "frameworks": {
         "net5.0": {
@@ -191,6 +227,10 @@
       "net5.0": {
         "targetAlias": "net5.0",
         "dependencies": {
+          "Microsoft.DotNet.ILCompiler": {
+            "target": "Package",
+            "version": "[6.0.0-*, )"
+          },
           "System.Drawing.Common": {
             "target": "Package",
             "version": "[5.0.0, )"
