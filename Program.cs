@@ -357,6 +357,9 @@ char PixelToChar(int g) => map[g * 50 / 256];
 
 int pixelToInt(Color c) => (c.R == c.G && c.G == c.B) ? 232 + (c.R * 23) / 255 : (16 + ((c.R * 5) / 255) * 36 + ((c.G * 5) / 255) * 6 + (c.B * 5) / 255);
 
-void Cancled(object sender, ConsoleCancelEventArgs args) => Console.CursorVisible = true;
+void Cancled(object sender, ConsoleCancelEventArgs args){
+	Console.CursorVisible = true;
+    Console.Write($"{escapeChar}[0m");
+}
 
 Main(args);
