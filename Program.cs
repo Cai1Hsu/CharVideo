@@ -319,7 +319,10 @@ void ProcessFrames(string path, int amont, ref char[][] frames)
 }
 
 char[] GetFrame(long i){
-	FrameToString(ref tempString ,new Bitmap($"{framesDir}{i + 1}.png"));
+    using (Bitmap bmp = new Bitmap($"{framesDir}{i + 1}.png"))
+    {
+        FrameToString(ref tempString ,bmp);
+    }
     return isRealtime?null:tempString;
 }
 
