@@ -113,7 +113,7 @@ eg : CharVideo ~/a.mp4
             case "-na":
                 isPlayAudio = false;
                 break;
-			default:
+	        default:
 				Console.WriteLine($"\a[!] Unexcptation argument : {args[i]}");
 				return;
         }
