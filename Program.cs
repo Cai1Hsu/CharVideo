@@ -3,6 +3,7 @@ using System.IO;
 using System.Drawing;
 using System.Threading;
 using System.Diagnostics;
+using System.Drawing.Imaging;
 
 int len = -1;
 int fps = 30;
@@ -11,7 +12,6 @@ int videoHeight = 33;
 string ratio = "16:9";
 string framesDir = null;
 char[] tempString = null;
-bool isRealtime         = true;
 bool isWithColor        = false;
 bool isPlayAudio        = true;
 bool isOutputOnly       = false;
@@ -20,7 +20,7 @@ bool isPlaySourceVideo  = false;
 bool isGotFps           = false;
 bool isInputRatio       = false;
 bool isMaximize         = false;
-const char escapeChar = (char)27;
+const char escapeChar   = (char)27;
 
 void Main(string[] args)
 {
@@ -30,13 +30,13 @@ void Main(string[] args)
     {
         Console.WriteLine(@"Usage : CharVideo [videofile](path) [option]
 eg : CharVideo ~/a.mp4
-	option:
-		--output_only 		-o 		Only output images and exit.
-		-f 					-f 		Input fps manually.
-		-r 					-r		Input resolution manually.
-		-c 					-c		Use 256 colors.
-		--pre-render 		-pr 	Render frames before play.
-		-na 				-na		Do not play audio.");
+    option:
+        --output_only    -o     Only output images and exit.
+        -f               -f     Input fps manually.
+        -r               -r     Input resolution manually.
+        -c               -c     Use 256 colors.
+        --pre-render     -pr    Render frames before play.
+        -na              -na    Do not play the audio.");
         return;
     }
 
@@ -92,9 +92,6 @@ eg : CharVideo ~/a.mp4
             case "-s":
                 isPlaySourceVideo = true;
                 break;
-            case "--realtime":
-                isRealtime = true;
-                break;
             case "-o":
             case "--output_only":
                 isOutputOnly = true;
@@ -104,18 +101,14 @@ eg : CharVideo ~/a.mp4
                 break;
             case "-m":
             case "--maximize":
-                isMaximize = true;               
-                break;
-            case "--pre-render":
-            case "-pr":
-                isRealtime = false;
+                isMaximize = true;
                 break;
             case "-na":
                 isPlayAudio = false;
                 break;
-	        default:
-				Console.WriteLine($"\a[!] Unexcptation argument : {args[i]}");
-				return;
+            default:
+                Console.WriteLine($"\a[!] Unexcptation argument : {args[i]}");
+                return;
         }
     }
 
@@ -130,11 +123,13 @@ eg : CharVideo ~/a.mp4
         Console.WriteLine(fps);
     }
 
-    if(!isInputRatio){
+    if(!isInputRatio)
+    {
         Console.Write("Getting video ratio...\t");
         ratio = GetVideoRatio($"{video.FullName}");
         Console.WriteLine(ratio);
-        if(ratio.Length == 0 || !ratio.Contains(":")){
+        if(ratio.Length == 0 || !ratio.Contains(":"))
+        {
             Console.WriteLine("Please input video ratio.");
             return;
         }
@@ -170,7 +165,7 @@ eg : CharVideo ~/a.mp4
 
     if (!isFramesExist || !Directory.Exists(framesDir))
     {
-		Console.Write("Processing frames.");
+        Console.Write("Processing frames.");
         Directory.CreateDirectory(framesDir);
         OutputFrames(video.FullName, fps, framesDir);
     }
@@ -185,48 +180,31 @@ eg : CharVideo ~/a.mp4
 
     if (amont == 0) return;
 
-    char[][] frames = new char[amont][];
-
-    Thread audioPlayer = null;
-    if (isPlayAudio)
-    {
-        audioPlayer = new Thread(() => { PlayAudio(video.FullName); });
-    }
-    Thread sourcePlayer = null;
-    if (isPlaySourceVideo)
-    {
-        sourcePlayer = new Thread(() => { PlaySource(video.FullName); });
-    }
-
-    if (!isRealtime)
-    {
-        ProcessFrames(framesDir, amont, ref frames);
-    }
-
     for (int i = 0; i++ < Console.WindowHeight; Console.Write('\n')) ;
 
-    if(isRealtime) tempString = new char[isWithColor ? (videoWidth + 1) * videoHeight * 14 + 1: (videoWidth + 1) * videoHeight + 1];
+    using(Bitmap bmp = new Bitmap($"{framesDir}{1}.png")){
+        tempString = new char[isWithColor ? (bmp.Width + 1) * bmp.Height * 14 + 1: (bmp.Width + 1) * bmp.Height + 1];
+    }
     
     Console.CursorVisible = false;
     Console.CancelKeyPress += new ConsoleCancelEventHandler(Cancled);
 
     if (isPlayAudio)
     {
-        audioPlayer.Start();
+        PlayAudio(video.FullName);
     }
     if (isPlaySourceVideo)
     {
-        sourcePlayer.Start();
+        PlaySource(video.FullName);
     }
 
-    Play(isRealtime, isRealtime? null: frames, amont, fps, isRealtime? framesDir: null);
+    Play(amont, fps, framesDir);
     Console.CursorVisible = true;
 }
 
-void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
+void Play(int amont, int fps, string path)
 {
-	Stopwatch timer = new Stopwatch();
-	timer.Reset();
+    Stopwatch timer = new Stopwatch();
     timer.Start();
     long playingFrame = 0;
     long lastSecond = timer.ElapsedMilliseconds / 1000;
@@ -236,28 +214,29 @@ void Play(bool isRealtime, char[][] frames, int amont, int fps, string path)
     GetFrame(playingFrame);
     while (playingFrame < amont)
     {
-        // print frame
-        if(isRealtime){
-            Console.Out.Write(tempString,0,len);
-        }else Console.Write(frames[playingFrame]);
+         Console.Out.Write(tempString,0,len);
+        
         if(isWithColor) Console.Write($"{escapeChar}[0m");
         Console.Write("{0} / {1} Rendering fps : {2}", playingFrame, amont, showingFps);
         
         lastFrame = playingFrame;
-        // rendering fps counter
-        if (timer.ElapsedMilliseconds / 1000 != lastSecond)
+     
+        if (timer.ElapsedMilliseconds / 1000 == lastSecond)
+        {
+            countFrames++;
+        }
+        else
         {
             showingFps = countFrames;
             countFrames = 1;
             lastSecond = timer.ElapsedMilliseconds / 1000;
         }
-        else countFrames++;
-        // pre-render
+     
         if(playingFrame != amont - 1) GetFrame(playingFrame + 1);
-        // reset cursor
+     
         Console.SetCursorPosition(0,0);
-        // frame limit
-        SpinWait.SpinUntil(() => (playingFrame = timer.ElapsedMilliseconds * fps / 1000) > lastFrame );
+     
+        SpinWait.SpinUntil(() => (playingFrame = timer.ElapsedMilliseconds * fps / 1000) > lastFrame);
     }
     timer.Stop();
 }
@@ -268,25 +247,26 @@ string StringToString(string str) => str.Length == 0?str:(str[0] == '\"' ? str :
 
 void PlaySource(string videoFile)
 {
-    string arg = string.Format("{0} -an -autoexit -loglevel quiet", StringToString(videoFile));
-    Process.Start("ffplay", arg).WaitForExit();
+    string arg = string.Format("{0} -an -autoexit -loglevel -8", StringToString(videoFile));
+    Process.Start("ffplay", arg);
 }
 
 void PlayAudio(string videoFile)
 {
-    string arg = string.Format("{0} -nodisp -autoexit -loglevel quiet", StringToString(videoFile));
-	Process.Start("ffplay", arg).WaitForExit();
+    string arg = string.Format("{0} -nodisp -autoexit -loglevel -8", StringToString(videoFile));
+    Process.Start("ffplay", arg);
 }
 
 void OutputFrames(string pathandname, int fps, string path)
 {
-    string arg = string.Format(" -i {0} -r {1} -s {2}x{3} {4} -threads 4 -preset ultrafast -c:v h264_nvenc -cq 51 -loglevel quiet",	
-		StringToString(pathandname), fps, videoWidth, videoHeight, StringToString($"{path}%d.png"));
-	Process.Start("ffmpeg", arg).WaitForExit();
+    string arg = string.Format(" -i {0} -r {1} -s {2}x{3} {4}  -preset ultrafast -cq 51 -loglevel quiet",    
+        StringToString(pathandname), fps, videoWidth, videoHeight, StringToString($"{path}%d.png"));
+    Process.Start("ffmpeg", arg).WaitForExit();
 }
 
-int GetVideoFps(string file){
-	string arg = string.Format("-v quiet -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate {0}", StringToString(file)); 
+int GetVideoFps(string file)
+{
+    string arg = string.Format("-v quiet -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate {0}", StringToString(file)); 
     Process p = new Process();
     p.StartInfo.FileName = "ffprobe";
     p.StartInfo.Arguments = arg;
@@ -295,10 +275,11 @@ int GetVideoFps(string file){
     p.Start();
     string o = p.StandardOutput.ReadToEnd();
     p.WaitForExit();
-	return Convert.ToInt32(o.Substring(0, o.LastIndexOf('/')));
+    return Convert.ToInt32(o.Substring(0, o.LastIndexOf('/')));
 }
 
-string GetVideoRatio(string file){
+string GetVideoRatio(string file)
+{
     string arg = string.Format("-v quiet -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=display_aspect_ratio {0}", StringToString(file));
     Process p = new Process();
     p.StartInfo.FileName = "ffprobe";
@@ -311,44 +292,47 @@ string GetVideoRatio(string file){
     return o;
 }
 
-void ProcessFrames(string path, int amont, ref char[][] frames)
+void GetFrame(long i)
 {
-    int length = isWithColor ? (videoWidth + -1) * videoHeight * 14 + 1: (videoWidth + 1) * videoHeight;
-    for(int i = 0; i < amont;frames[i++] = new char[length]);
-    for(int i = 0; i < amont;FrameToString(ref frames[i],new Bitmap($"{path}{++i}.png"))) ;
-}
-
-char[] GetFrame(long i){
     using (Bitmap bmp = new Bitmap($"{framesDir}{i + 1}.png"))
     {
         FrameToString(ref tempString ,bmp);
     }
-    return isRealtime?null:tempString;
 }
 
-void FrameToString(ref char[] s, Bitmap bp)
+unsafe void FrameToString(ref char[] s, Bitmap bp)
 {
     int i = 0;
-    for (int y = 0; y < videoHeight; y++)
+    int lastColor = -1;
+    BitmapData data = bp.LockBits(new Rectangle(0, 0, bp.Width, bp.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+    IntPtr ptr = data.Scan0;
+    for (int y = 0; y < data.Height; y++)
     {
-        for (int x = 0; x < videoWidth; x++)
+        for (int x = 0; x < data.Width; x++)
         {
-            Color c = bp.GetPixel(x, y);
+            byte* pixelptr = (byte*)(ptr + (y * data.Stride + x * 3));
             if (isWithColor)
             {
-                AppendChar(s, ref  i, escapeChar);
-                AppendString(s, ref i, "[0;38;5;");
-                AppendString(s, ref i, pixelToInt(bp.GetPixel(x, y)).ToString());
-                AppendChar(s, ref i, 'm');
+                int currentColor = pixelToInt( pixelptr[2], pixelptr[1], pixelptr[0]); 
+                if (lastColor != currentColor)
+                {
+                    AppendChar(s, ref  i, escapeChar);
+                    AppendString(s, ref i, "[0;38;5;");
+                    AppendString(s, ref i, currentColor.ToString());
+                    AppendChar(s, ref i, 'm');
+                    lastColor = currentColor;
+                }
             }
-            AppendChar(s, ref i, PixelToChar((c.R * 306 + c.G * 601 + c.B * 117) >> 10));
+            AppendChar(s, ref i, PixelToChar((pixelptr[2] * 3800 + pixelptr[1] * 7500 + pixelptr[0] * 1500) >> 16));
         }
         AppendChar(s, ref i, '\n');
     }
     len = i;
+    bp.UnlockBits(data);
 }
 
-void AppendString(char[] str, ref int i,string s){
+void AppendString(char[] str, ref int i,string s)
+{
     for(int l = 0;l < s.Length;l++) str[i++] = s[l];
 }
 
@@ -356,12 +340,13 @@ void AppendChar(char[] str, ref int i, char c) => str[i++] = c;
 
 const string map = "              -----::::++++++=====*****###########";//"        --::+++++===***######";
 
-char PixelToChar(int g) => map[g * 50 / 256];
+char PixelToChar(int g) => map[g];
 
-int pixelToInt(Color c) => (c.R == c.G && c.G == c.B) ? 232 + (c.R * 23) / 255 : (16 + ((c.R * 5) / 255) * 36 + ((c.G * 5) / 255) * 6 + (c.B * 5) / 255);
+int pixelToInt(int r, int g, int b) => (g == r && g == b) ? 232 + (g * 23) / 255 : (16 + ((r * 5) / 255) * 36 + ((g * 5) / 255) * 6 + (b * 5) / 255);
 
-void Cancled(object sender, ConsoleCancelEventArgs args){
-	Console.CursorVisible = true;
+void Cancled(object sender, ConsoleCancelEventArgs args)
+{
+    Console.CursorVisible = true;
     Console.Write($"{escapeChar}[0m");
 }
 
