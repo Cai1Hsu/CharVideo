@@ -21,7 +21,7 @@ bool isGotFps           = false;
 bool isInputRatio       = false;
 bool isMaximize         = false;
 const char escapeChar   = (char)27;
-const string map = "     ......-----:::::=====++++****######";//old : "        --::+++++===***######";
+const string map = "                ----::::++++++=====*****###########";//old : "        --::+++++===***######";
 
 void Main(string[] args)
 {
@@ -324,7 +324,7 @@ unsafe void FrameToString(ref char[] s, Bitmap bp)
                     lastColor = currentColor;
                 }
             }
-            AppendChar(s, ref i, PixelToChar((pixelptr[2] * 3040 + pixelptr[1] * 6000 + pixelptr[0] * 1200) >> 16));
+            AppendChar(s, ref i, PixelToChar((pixelptr[2] * 4484 + pixelptr[1] * 8850 + pixelptr[0] * 1770) >> 16));
         }
         AppendChar(s, ref i, '\n');
     }
