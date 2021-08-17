@@ -259,7 +259,7 @@ void PlayAudio(string videoFile)
 
 void OutputFrames(string pathandname, int fps, string path)
 {
-    string arg = string.Format(" -i {0} -r {1} -s {2}x{3} {4}  -preset ultrafast -cq 51 -loglevel quiet",    
+    string arg = string.Format(" -i {0} -r {1} -s {2}x{3} {4}  -preset ultrafast -loglevel -8",    
         StringToString(pathandname), fps, videoWidth, videoHeight, StringToString($"{path}%d.png"));
     Process.Start("ffmpeg", arg).WaitForExit();
 }
