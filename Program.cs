@@ -21,6 +21,7 @@ bool isGotFps           = false;
 bool isInputRatio       = false;
 bool isMaximize         = false;
 const char escapeChar   = (char)27;
+const string map = "      ....-----::::=====++++++*****EEEEEHHHH######";//"        --::+++++===***######";
 
 void Main(string[] args)
 {
@@ -337,8 +338,6 @@ void AppendString(char[] str, ref int i,string s)
 }
 
 void AppendChar(char[] str, ref int i, char c) => str[i++] = c;
-
-const string map = "              -----::::++++++=====*****###########";//"        --::+++++===***######";
 
 char PixelToChar(int g) => map[g];
 
