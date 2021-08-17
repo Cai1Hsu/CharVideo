@@ -324,7 +324,7 @@ unsafe void FrameToString(ref char[] s, Bitmap bp)
                     lastColor = currentColor;
                 }
             }
-            AppendChar(s, ref i, PixelToChar((pixelptr[2] * 4484 + pixelptr[1] * 8850 + pixelptr[0] * 1770) >> 16));
+            AppendChar(s, ref i, PixelToChar((pixelptr[2] * 15 + pixelptr[1] * 30 + pixelptr[0] * 6) >> 8));
         }
         AppendChar(s, ref i, '\n');
     }
