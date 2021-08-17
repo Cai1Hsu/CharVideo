@@ -119,7 +119,7 @@ eg : CharVideo ~/a.mp4
     string path = GetPath(video.FullName);
     
     if(!isGotFps){
-        Console.Write("Getting video frames rate...\t");
+        Console.Write("Getting video fps...\t");
         fps = GetVideoFps($"{video.FullName}");
         Console.WriteLine(fps);
     }
