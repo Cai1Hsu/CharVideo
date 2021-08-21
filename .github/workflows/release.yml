@@ -23,6 +23,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install clang zlib1g-dev libkrb5-de
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
