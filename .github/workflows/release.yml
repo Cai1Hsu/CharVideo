@@ -51,5 +51,5 @@ jobs:
           name: 'charplayer-linux-native-x64.tar.gz'
           mime: application/octet-stream
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
