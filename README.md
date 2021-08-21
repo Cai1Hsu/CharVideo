@@ -16,11 +16,12 @@ This program allows you to play a video in chars.
    - Windows
 
 ## Binary
-   ### Linux
-      For linux users, we provide [native-built binary](https://github.com/Cai1Hsu/CharVideo/releases/tag/2.2).So you don't need a dotnet runtime.Install the dependencies and you can get started.
-      - ffmpeg
-      - libgdiplus
-      - glibc
+
+### Linux
+   For linux users, we provide [native-built binary](https://github.com/Cai1Hsu/CharVideo/releases/tag/2.2).So you don't need a dotnet runtime.Install the dependencies and you can get started.
+   - ffmpeg
+   - libgdiplus
+   - glibc
 
 ## Build
 
