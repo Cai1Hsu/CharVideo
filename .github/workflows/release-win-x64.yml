@@ -35,7 +35,7 @@ jobs:
         run: |
           cd bin/Release/net5.0/win-x64/
           tar -zcvf charplayer-win-native-x64.tar.gz ./publish
-          $release_file_path="$(pwd)/charplayer-win-native-x64.tar.gz"
+          $release_file_path="$(pwd)\charplayer-win-native-x64.tar.gz"
           echo $release_file_path
           echo "release_file_path=$release_file_path" >> $GITHUB_ENV
           echo "pack ended."
