@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install clang zlib1g-dev libkrb5-de
+          sudo apt-get install clang zlib1g-dev libkrb5-dev
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
