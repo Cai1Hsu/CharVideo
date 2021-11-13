@@ -83,7 +83,7 @@ eg : CharVideo ~/a.mp4
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    Console.WriteLine("invalid input, fps was set to 30 by default.");
+                    Console.WriteLine("Invalid input, fps was set to 30 by default.");
                 }
                 isGotFps = true;
                 break;
@@ -118,7 +118,8 @@ eg : CharVideo ~/a.mp4
     string name = video.Name.Substring(0, video.Name.LastIndexOf('.'));
     string path = GetPath(video.FullName);
     
-    if(!isGotFps){
+    if(!isGotFps)
+    {
         Console.Write("Getting video fps...\t");
         fps = GetVideoFps($"{video.FullName}");
         Console.WriteLine(fps);
@@ -137,7 +138,8 @@ eg : CharVideo ~/a.mp4
         isMaximize = true;
     }
     
-    if(isMaximize){
+    if(isMaximize)
+    {
         int x = Convert.ToInt32(ratio.Split(':')[0]);
         int y = Convert.ToInt32(ratio.Split(':')[1]);
         int w1 = Console.WindowWidth;
@@ -156,9 +158,11 @@ eg : CharVideo ~/a.mp4
         }
     }
 
-    if(Directory.Exists($"{path}{name}_{fps}") && Directory.GetFiles($"{path}{name}_{fps}").Length > 0){
+    if(Directory.Exists($"{path}{name}_{fps}") && Directory.GetFiles($"{path}{name}_{fps}").Length > 0)
+    {
         isFramesExist = true;
-    }else{
+    }else
+    {
         isFramesExist = false;
     }
     
@@ -183,7 +187,8 @@ eg : CharVideo ~/a.mp4
 
     for (int i = 0; i++ < Console.WindowHeight; Console.Write('\n')) ;
 
-    using(Bitmap bmp = new Bitmap($"{framesDir}{1}.png")){
+    using(Bitmap bmp = new Bitmap($"{framesDir}{1}.png"))
+    {
         tempString = new char[isWithColor ? (bmp.Width + 1) * bmp.Height * 14 + 1: (bmp.Width + 1) * bmp.Height + 1];
     }
     
@@ -215,7 +220,7 @@ void Play(int amont, int fps, string path)
     GetFrame(playingFrame);
     while (playingFrame < amont)
     {
-         Console.Out.Write(tempString,0,len);
+        Console.Out.Write(tempString,0,len);
         
         if(isWithColor) Console.Write($"{escapeChar}[0m");
         Console.Write("{0} / {1} Rendering fps : {2}", playingFrame, amont, showingFps);
