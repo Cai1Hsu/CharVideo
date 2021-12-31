@@ -211,6 +211,8 @@ eg : CharVideo ~/a.mp4
 void Play(int amont, int fps, string path)
 {
     Stopwatch timer = new Stopwatch();
+    TextWriter buffer1 = new TextWriter();
+    TextWriter buffer2 = new TextWriter();
     timer.Start();
     long playingFrame = 0;
     long lastSecond = timer.ElapsedMilliseconds / 1000;
@@ -220,10 +222,7 @@ void Play(int amont, int fps, string path)
     GetFrame(playingFrame);
     while (playingFrame < amont)
     {
-        Console.Out.Write(tempString,0,len);
-        
-        if(isWithColor) Console.Write($"{escapeChar}[0m");
-        Console.Write("{0} / {1} Rendering fps : {2}", playingFrame, amont, showingFps);
+        Console.SetOut(buffer1);
         
         lastFrame = playingFrame;
      
@@ -238,9 +237,17 @@ void Play(int amont, int fps, string path)
             lastSecond = timer.ElapsedMilliseconds / 1000;
         }
      
-        if(playingFrame != amont - 1) GetFrame(playingFrame + 1);
-     
-        Console.SetCursorPosition(0,0);
+        if(playingFrame != amont - 1)
+        {
+            GetFrame(playingFrame + 1);
+            buffer1.Write(tempString,0,len);
+            if(isWithColor) buffer1.Write($"{escapeChar}[0m");
+            buffer1.Write("{0} / {1} Rendering fps : {2}", playingFrame, amont, showingFps);
+            TextWriter tempbuffer = buffer1;
+            buffer1 = buffer2;
+            buffer2 = tempbuffer;
+            buffer1.Flush();
+        }
      
         SpinWait.SpinUntil(() => (playingFrame = timer.ElapsedMilliseconds * fps / 1000) > lastFrame);
     }
