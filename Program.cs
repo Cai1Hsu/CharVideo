@@ -211,8 +211,8 @@ eg : CharVideo ~/a.mp4
 void Play(int amont, int fps, string path)
 {
     Stopwatch timer = new Stopwatch();
-    TextWriter buffer1 = new TextWriter();
-    TextWriter buffer2 = new TextWriter();
+    TextWriter buffer1 = new StringWriter();
+    TextWriter buffer2 = new StringWriter();
     timer.Start();
     long playingFrame = 0;
     long lastSecond = timer.ElapsedMilliseconds / 1000;
