@@ -120,14 +120,14 @@ eg : CharVideo ~/a.mp4
     
     if(!isGotFps)
     {
-        Console.Write("Getting video fps...\t");
+        Console.Write("Fetching video fps...\t");
         fps = GetVideoFps($"{video.FullName}");
         Console.WriteLine(fps);
     }
 
     if(!isInputRatio)
     {
-        Console.Write("Getting video ratio...\t");
+        Console.Write("Fetching video ratio...\t");
         ratio = GetVideoRatio($"{video.FullName}");
         Console.WriteLine(ratio);
         if(ratio.Length == 0 || !ratio.Contains(":"))
