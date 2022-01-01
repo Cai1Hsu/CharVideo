@@ -1,28 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Cai1 Hsu\\CharVideo\\charvideo.csproj": {}
+    "/home/cai1hsu/CharVideo/charvideo.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Cai1 Hsu\\CharVideo\\charvideo.csproj": {
+    "/home/cai1hsu/CharVideo/charvideo.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Cai1 Hsu\\CharVideo\\charvideo.csproj",
+        "projectUniqueName": "/home/cai1hsu/CharVideo/charvideo.csproj",
         "projectName": "charvideo",
-        "projectPath": "C:\\Users\\Cai1 Hsu\\CharVideo\\charvideo.csproj",
-        "packagesPath": "C:\\Users\\Cai1 Hsu\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Cai1 Hsu\\CharVideo\\obj\\",
+        "projectPath": "/home/cai1hsu/CharVideo/charvideo.csproj",
+        "packagesPath": "/home/cai1hsu/.nuget/packages/",
+        "outputPath": "/home/cai1hsu/CharVideo/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Cai1 Hsu\\CharVideo\\NuGet.Config",
-          "C:\\Users\\Cai1 Hsu\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/home/cai1hsu/CharVideo/nuget.config",
+          "/home/cai1hsu/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net5.0"
+          "net6.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {},
@@ -30,8 +26,8 @@
           "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-experimental/nuget/v3/index.json": {}
         },
         "frameworks": {
-          "net5.0": {
-            "targetAlias": "net5.0",
+          "net6.0": {
+            "targetAlias": "net6.0",
             "projectReferences": {}
           }
         },
@@ -42,8 +38,8 @@
         }
       },
       "frameworks": {
-        "net5.0": {
-          "targetAlias": "net5.0",
+        "net6.0": {
+          "targetAlias": "net6.0",
           "dependencies": {
             "Microsoft.DotNet.ILCompiler": {
               "target": "Package",
@@ -69,7 +65,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.302\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.101/RuntimeIdentifierGraph.json"
         }
       }
     }

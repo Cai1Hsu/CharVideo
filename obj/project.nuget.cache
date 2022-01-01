@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "4gEuF6mq1V5IfcmxVSJ7PtqNUNAUt8ujDaPH9GWh5G3FmoovwL1wjmkM8LBobh+UM6GkmHv7JLtsOC9Aqzk5NA==",
+  "dgSpecHash": "ndhyIV2oRK/c9eaJXrxl6S2E1u/sVj20aeFXRZc0vRHt/M2/VXiDe/t1MLR4Q3lbZiRfUenLIFQWwCq1pWhKjg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Cai1 Hsu\\CharVideo\\charvideo.csproj",
+  "projectFilePath": "/home/cai1hsu/CharVideo/charvideo.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Cai1 Hsu\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\6.0.0-rc.1.21408.3\\microsoft.dotnet.ilcompiler.6.0.0-rc.1.21408.3.nupkg.sha512",
-    "C:\\Users\\Cai1 Hsu\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.0\\microsoft.netcore.platforms.5.0.0.nupkg.sha512",
-    "C:\\Users\\Cai1 Hsu\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
-    "C:\\Users\\Cai1 Hsu\\.nuget\\packages\\system.drawing.common\\5.0.0\\system.drawing.common.5.0.0.nupkg.sha512"
+    "/home/cai1hsu/.nuget/packages/microsoft.dotnet.ilcompiler/6.0.0-rc.1.21420.1/microsoft.dotnet.ilcompiler.6.0.0-rc.1.21420.1.nupkg.sha512",
+    "/home/cai1hsu/.nuget/packages/microsoft.netcore.platforms/5.0.0/microsoft.netcore.platforms.5.0.0.nupkg.sha512",
+    "/home/cai1hsu/.nuget/packages/microsoft.win32.systemevents/5.0.0/microsoft.win32.systemevents.5.0.0.nupkg.sha512",
+    "/home/cai1hsu/.nuget/packages/system.drawing.common/5.0.0/system.drawing.common.5.0.0.nupkg.sha512"
   ],
   "logs": []
 }
