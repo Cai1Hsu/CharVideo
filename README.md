@@ -25,24 +25,23 @@ This program allows you to play a video in chars.
 
 ### 1. Make sure you have installed all the dependencies .
 
-   - .Net 5
+   - .Net 7
    - ffmpeg
-   - libgdiplus
    
    ##### Arch
 
    ```bash
-sudo pacman -S ffmpeg libgdiplus git
+sudo pacman -S ffmpeg
    ```
 
    ##### Debian/Ubuntu
 
    ```bash
-sudo apt install ffmpeg libgdiplus git
+sudo apt install ffmpeg
    ```
    
-   #### Install .Net5
-   [.Net5](https://dotnet.microsoft.com/download/dotnet/5.0)
+   #### Install .Net7
+   [.Net5](https://dotnet.microsoft.com/download/dotnet/7.0)
    
 ### 2. Build
 
@@ -69,12 +68,12 @@ charplayer [videofile] [option]
 ## Usage
    `charvideo [videofile] [option]`
    
-   eg : `charvideo a.mp4 -c`
+   eg : `charvideo a.mp4 --c`
    
 #### Options
-   - -f Input fps manually.
-   - -r Input resolution manually.
+   - --f Input fps manually.
+   - --r Input resolution manually.
    - --output_only -o Output Frames and exit.
-   - -c Use 256 colors.
+   - --c Use 256 colors.
    - --pre-render -pr Render frames before play.
-   - -na do not play audio
+   - --na do not play audio
