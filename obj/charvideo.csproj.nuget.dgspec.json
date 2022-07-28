@@ -1,29 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "/home/cai1hsu/CharVideo/charvideo.csproj": {}
+    "/home/caiyi/workspace/CharVideo/charvideo.csproj": {}
   },
   "projects": {
-    "/home/cai1hsu/CharVideo/charvideo.csproj": {
+    "/home/caiyi/workspace/CharVideo/charvideo.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/cai1hsu/CharVideo/charvideo.csproj",
+        "projectUniqueName": "/home/caiyi/workspace/CharVideo/charvideo.csproj",
         "projectName": "charvideo",
-        "projectPath": "/home/cai1hsu/CharVideo/charvideo.csproj",
-        "packagesPath": "/home/cai1hsu/.nuget/packages/",
-        "outputPath": "/home/cai1hsu/CharVideo/obj/",
+        "projectPath": "/home/caiyi/workspace/CharVideo/charvideo.csproj",
+        "packagesPath": "/home/caiyi/.nuget/packages/",
+        "outputPath": "/home/caiyi/workspace/CharVideo/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/cai1hsu/CharVideo/nuget.config",
-          "/home/cai1hsu/.nuget/NuGet/NuGet.Config"
+          "/home/caiyi/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-experimental/nuget/v3/index.json": {}
+          "https://nuget.cdn.azure.cn/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
@@ -41,13 +39,9 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
-            "Microsoft.DotNet.ILCompiler": {
+            "SixLabors.ImageSharp": {
               "target": "Package",
-              "version": "[6.0.0-*, )"
-            },
-            "System.Drawing.Common": {
-              "target": "Package",
-              "version": "[5.0.0, )"
+              "version": "[2.1.3, )"
             }
           },
           "imports": [
@@ -65,7 +59,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.101/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.302/RuntimeIdentifierGraph.json"
         }
       }
     }

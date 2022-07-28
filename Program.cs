@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using System.Drawing;
 using System.Threading;
 using System.Diagnostics;
-using System.Drawing.Imaging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 int len = -1;
 int fps = 30;
@@ -11,7 +11,7 @@ int videoWidth = 117;
 int videoHeight = 33;
 string ratio = "16:9";
 string framesDir = null;
-char[] tempString = null;
+char[] BufferString = null;
 bool isWithColor        = false;
 bool isPlayAudio        = true;
 bool isOutputOnly       = false;
@@ -20,6 +20,7 @@ bool isPlaySourceVideo  = false;
 bool isGotFps           = false;
 bool isInputRatio       = false;
 bool isMaximize         = false;
+bool isWindows          = Environment.OSVersion.Platform == PlatformID.Win32NT;
 const char escapeChar   = (char)27;
 const string map = "                ----::::++++++=====*****###########";//old : "        --::+++++===***######";
 
@@ -32,12 +33,12 @@ void Main(string[] args)
         Console.WriteLine(@"Usage : CharVideo [videofile](path) [option]
 eg : CharVideo ~/a.mp4
     option:
-        --output_only    -o     Only output images and exit.
-        -f               -f     Input fps manually.
-        -r               -r     Input resolution manually.
-        -c               -c     Use 256 colors.
-        --pre-render     -pr    Render frames before play.
-        -na              -na    Do not play the audio.");
+        --output_only   Only output images and exit.
+        --f             Input fps manually.
+        --r             Input resolution manually.
+        --c             Use 256 colors.
+        --pre-render    Render frames before play.
+        -na             Do not play the audio.");
         return;
     }
 
@@ -52,7 +53,7 @@ eg : CharVideo ~/a.mp4
     {
         switch (args[i].ToLower())
         {
-            case "-r":
+            case "--r":
                 if (args[++i].Contains(":"))
                 {
                     ratio = args[i];
@@ -75,7 +76,7 @@ eg : CharVideo ~/a.mp4
                 }
                 isInputRatio = true;
                 break;
-            case "-f":
+            case "--f":
                 try
                 {
                     fps = Convert.ToInt32(args[++i]);
@@ -87,24 +88,24 @@ eg : CharVideo ~/a.mp4
                 }
                 isGotFps = true;
                 break;
-            case "-e":
+            case "--e":
                 isFramesExist = true;
                 break;
-            case "-s":
+            case "--s":
                 isPlaySourceVideo = true;
                 break;
-            case "-o":
+            case "--o":
             case "--output_only":
                 isOutputOnly = true;
                 break;
-            case "-c":
+            case "--c":
                 isWithColor = true;
                 break;
-            case "-m":
+            case "--m":
             case "--maximize":
                 isMaximize = true;
                 break;
-            case "-na":
+            case "--na":
                 isPlayAudio = false;
                 break;
             default:
@@ -187,13 +188,13 @@ eg : CharVideo ~/a.mp4
 
     for (int i = 0; i++ < Console.WindowHeight; Console.Write('\n')) ;
 
-    using(Bitmap bmp = new Bitmap($"{framesDir}{1}.png"))
+    using(Image<Rgba32> image = Image.Load<Rgba32>($"{framesDir}{1}.png"))
     {
-        tempString = new char[isWithColor ? (bmp.Width + 1) * bmp.Height * 14 + 1: (bmp.Width + 1) * bmp.Height + 1];
+        BufferString = new char[isWithColor ? (image.Width + 1) * image.Height * 14 + 1: (image.Width + 1) * image.Height + 1];
     }
     
-    Console.CursorVisible = false;
     Console.CancelKeyPress += new ConsoleCancelEventHandler(Cancled);
+    Console.CursorVisible = false;
 
     if (isPlayAudio)
     {
@@ -211,8 +212,6 @@ eg : CharVideo ~/a.mp4
 void Play(int amont, int fps, string path)
 {
     Stopwatch timer = new Stopwatch();
-    TextWriter buffer1 = new StringWriter();
-    TextWriter buffer2 = new StringWriter();
     timer.Start();
     long playingFrame = 0;
     long lastSecond = timer.ElapsedMilliseconds / 1000;
@@ -222,8 +221,6 @@ void Play(int amont, int fps, string path)
     GetFrame(playingFrame);
     while (playingFrame < amont)
     {
-        Console.SetOut(buffer1);
-        
         lastFrame = playingFrame;
      
         if (timer.ElapsedMilliseconds / 1000 == lastSecond)
@@ -240,13 +237,13 @@ void Play(int amont, int fps, string path)
         if(playingFrame != amont - 1)
         {
             GetFrame(playingFrame + 1);
-            buffer1.Write(tempString,0,len);
-            if(isWithColor) buffer1.Write($"{escapeChar}[0m");
-            buffer1.Write("{0} / {1} Rendering fps : {2}", playingFrame, amont, showingFps);
-            TextWriter tempbuffer = buffer1;
-            buffer1 = buffer2;
-            buffer2 = tempbuffer;
-            buffer1.Flush();
+            Console.Out.Write(BufferString,0,len);
+            if(isWithColor) Console.Out.Write($"{escapeChar}[0m");
+            Console.Out.Write("{0} / {1} Rendering fps : {2}", playingFrame, amont, showingFps);
+            if (isWindows)
+                Console.SetCursorPosition(0, 0);
+            else
+                Console.Out.Write("{0}[0;0H", escapeChar);
         }
      
         SpinWait.SpinUntil(() => (playingFrame = timer.ElapsedMilliseconds * fps / 1000) > lastFrame);
@@ -305,43 +302,41 @@ string GetVideoRatio(string file)
     return o;
 }
 
-void GetFrame(long i)
+void GetFrame(long index)
 {
-    using (Bitmap bmp = new Bitmap($"{framesDir}{i + 1}.png"))
+    using (Image<Rgba32> image = Image.Load<Rgba32>($"{framesDir}{index + 1}.png"))
     {
-        FrameToString(ref tempString ,bmp);
-    }
-}
-
-unsafe void FrameToString(ref char[] s, Bitmap bp)
-{
-    int i = 0;
-    int lastColor = -1;
-    BitmapData data = bp.LockBits(new Rectangle(0, 0, bp.Width, bp.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-    IntPtr ptr = data.Scan0;
-    for (int y = 0; y < data.Height; y++)
-    {
-        for (int x = 0; x < data.Width; x++)
+        int i = 0;
+        image.ProcessPixelRows(pixelAccessor =>
         {
-            byte* pixelptr = (byte*)(ptr + (y * data.Stride + x * 3));
-            if (isWithColor)
+            int lastColor = -1;
+            for (int y = 0; y < pixelAccessor.Height; y++)
             {
-                int currentColor = pixelToInt( pixelptr[2], pixelptr[1], pixelptr[0]); 
-                if (lastColor != currentColor)
+                Span<Rgba32> row = pixelAccessor.GetRowSpan(y);
+
+                // Using row.Length helps JIT to eliminate bounds checks when accessing row[x].
+                for (int x = 0; x < row.Length; x++)
                 {
-                    AppendChar(s, ref  i, escapeChar);
-                    AppendString(s, ref i, "[0;38;5;");
-                    AppendString(s, ref i, currentColor.ToString());
-                    AppendChar(s, ref i, 'm');
-                    lastColor = currentColor;
+                    Rgba32 pixel = row[x];
+                    if (isWithColor)
+                    {
+                        int currentColor = pixelToInt( pixel.R, pixel.G, pixel.B); 
+                        if (lastColor != currentColor)
+                        {
+                            AppendChar(BufferString, ref  i, escapeChar);
+                            AppendString(BufferString, ref i, "[0;38;5;");
+                            AppendString(BufferString, ref i, currentColor.ToString());
+                            AppendChar(BufferString, ref i, 'm');
+                            lastColor = currentColor;
+                        }
+                    }
+                    AppendChar(BufferString, ref i, PixelToChar((pixel.R * 15 + pixel.G * 30 + pixel.B * 6) >> 8));
                 }
+                AppendChar(BufferString, ref i, '\n');
             }
-            AppendChar(s, ref i, PixelToChar((pixelptr[2] * 15 + pixelptr[1] * 30 + pixelptr[0] * 6) >> 8));
-        }
-        AppendChar(s, ref i, '\n');
+            len = i;
+        });
     }
-    len = i;
-    bp.UnlockBits(data);
 }
 
 void AppendString(char[] str, ref int i,string s)

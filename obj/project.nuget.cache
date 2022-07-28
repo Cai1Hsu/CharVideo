@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "ndhyIV2oRK/c9eaJXrxl6S2E1u/sVj20aeFXRZc0vRHt/M2/VXiDe/t1MLR4Q3lbZiRfUenLIFQWwCq1pWhKjg==",
+  "dgSpecHash": "0JzvZRy1x53ZKUR32aIcPbfTt0j6gpDO2HRvL2gyw3Wghp8SBjWn9oLrb61NEPFICk4Kcu0FgJa4i7zd1Bf12w==",
   "success": true,
-  "projectFilePath": "/home/cai1hsu/CharVideo/charvideo.csproj",
+  "projectFilePath": "/home/caiyi/workspace/CharVideo/charvideo.csproj",
   "expectedPackageFiles": [
-    "/home/cai1hsu/.nuget/packages/microsoft.dotnet.ilcompiler/6.0.0-rc.1.21420.1/microsoft.dotnet.ilcompiler.6.0.0-rc.1.21420.1.nupkg.sha512",
-    "/home/cai1hsu/.nuget/packages/microsoft.netcore.platforms/5.0.0/microsoft.netcore.platforms.5.0.0.nupkg.sha512",
-    "/home/cai1hsu/.nuget/packages/microsoft.win32.systemevents/5.0.0/microsoft.win32.systemevents.5.0.0.nupkg.sha512",
-    "/home/cai1hsu/.nuget/packages/system.drawing.common/5.0.0/system.drawing.common.5.0.0.nupkg.sha512"
+    "/home/caiyi/.nuget/packages/microsoft.netcore.platforms/5.0.0/microsoft.netcore.platforms.5.0.0.nupkg.sha512",
+    "/home/caiyi/.nuget/packages/sixlabors.imagesharp/2.1.3/sixlabors.imagesharp.2.1.3.nupkg.sha512",
+    "/home/caiyi/.nuget/packages/system.runtime.compilerservices.unsafe/5.0.0/system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512",
+    "/home/caiyi/.nuget/packages/system.text.encoding.codepages/5.0.0/system.text.encoding.codepages.5.0.0.nupkg.sha512"
   ],
   "logs": []
 }
