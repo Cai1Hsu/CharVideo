@@ -269,7 +269,7 @@ void PlayAudio(string videoFile)
 
 void OutputFrames(string pathandname, int fps, string path)
 {
-    string arg = string.Format(" -i {0} -r {1} -s {2}x{3} {4}  -preset ultrafast -loglevel -8",    
+    string arg = string.Format("-i {0} -r {1} -s {2}x{3} {4}  -preset ultrafast -loglevel -8",    
         StringToString(pathandname), fps, videoWidth, videoHeight, StringToString($"{path}%d.png"));
     Process.Start("ffmpeg", arg).WaitForExit();
 }
@@ -290,7 +290,7 @@ int GetVideoFps(string file)
 
 string GetVideoRatio(string file)
 {
-    string arg = string.Format("-v quiet -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=display_aspect_ratio {0}", StringToString(file));
+    string arg = string.Format("-v quiet -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=width,height {0}", StringToString(file));
     Process p = new Process();
     p.StartInfo.FileName = "ffprobe";
     p.StartInfo.Arguments = arg;
@@ -299,7 +299,44 @@ string GetVideoRatio(string file)
     p.Start();
     string o = p.StandardOutput.ReadToEnd();
     p.WaitForExit();
-    return o;
+    return ResolutionToRatio(o);
+}
+
+string ResolutionToRatio(string input)
+{
+    string[] Resolution = input.Split('\n');
+    int width = 0, height = 0;
+    
+    try 
+    {
+        width = Convert.ToInt32(Resolution[0]);
+        height = Convert.ToInt32(Resolution[1]);
+    } 
+    catch (Exception e) 
+    {
+        Console.WriteLine(e.Message);
+    }
+
+    int gcdi = gcd(width, height);
+    
+    width = (int)(width / gcdi);
+    height = (int)(height / gcdi);
+
+    return $"{width}:{height}";
+}
+
+int gcd(int a, int b)
+{
+    int r;
+
+    while (b != 0 )
+    {
+        r = a % b;
+        a = b;
+        b = r;
+    }
+      
+    return a;
 }
 
 void GetFrame(long index)
