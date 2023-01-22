@@ -4,6 +4,10 @@ using System.Threading;
 using System.Diagnostics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Rendering;
+using osu.Framework.Graphics.Video;
+using osu.Framework.Graphics.Audio;
 
 int len = -1;
 int fps = 30;
@@ -24,8 +28,11 @@ bool isWindows          = Environment.OSVersion.Platform == PlatformID.Win32NT;
 const char escapeChar   = (char)27;
 const string map = "                ----::::++++++=====*****###########";//old : "        --::+++++===***######";
 
+IRenderer Renderer = new GLRenderer();
+VideoDecoder videoDecoder;
+
 void Main(string[] args)
-{
+{    
     Console.CursorVisible = true;
 
     if (args.Length < 1 || args[0].ToLower() == "help" || args[0].ToLower() == "-h")
@@ -269,9 +276,9 @@ void PlayAudio(string videoFile)
 
 void OutputFrames(string pathandname, int fps, string path)
 {
-    string arg = string.Format("-i {0} -r {1} -s {2}x{3} {4}  -preset ultrafast -loglevel -8",    
-        StringToString(pathandname), fps, videoWidth, videoHeight, StringToString($"{path}%d.png"));
-    Process.Start("ffmpeg", arg).WaitForExit();
+    VideoDecoder videoDecoder = new VideoDecoder(null, path);
+    var decodedFrames = videoDecoder.GetDecodedFrames();
+    
 }
 
 int GetVideoFps(string file)
